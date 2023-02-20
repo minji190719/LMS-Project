@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.CalendarMapper">
+
+
+
+	<resultMap id="mapping" type="map">
+		<id property="groupId" column="CLDR_CODE" />
+		<result property="title" column="CLDR_TITLE" />
+		<result property="memo" column="CLDR_MEMO" />
+		<result property="start" column="CLDR_START" />
+		<result property="end" column="CLDR_END" />
+		<result property="allDay" column="CLDR_ALLDAY" />
+		<result property="color" column="CLDR_COLOR" />
+		<result property="memNo" column="MEM_NO" />
+		<result property="category" column="CLDR_CATEGORY" />
+		<result property="check" column="CLDR_CHECK" />
+	</resultMap>
+
+	<select id="getCalendarList" parameterType="map" resultMap="mapping">
+		select * from calendar where cldr_category = #{CLDR_CATEGORY}
+		<if test="CLDR_START != null">
+			and cldr_start  <![CDATA[>=]]> to_date(#{CLDR_START}, 'YYYY-MM') 
+			and cldr_start <![CDATA[<=]]> add_months(to_date(#{CLDR_START}, 'YYYY-MM'),1)-1 
+		</if>
+		order by CLDR_START
+	</select>
+	
+	<resultMap id="mapping2" type="map">
+		<id property="groupId" column="CLDR_CODE" />
+		<result property="title" column="CLDR_TITLE" />
+		<result property="memo" column="CLDR_MEMO" />
+		<result property="start" column="CLDR_START" />
+		<result property="end" column="CLDR_END" />
+		<result property="allDay" column="CLDR_ALLDAY" />
+		<result property="color" column="CLDR_COLOR" />
+		<result property="memNo" column="MEM_NO" />
+		<result property="category" column="CLDR_CATEGORY" />
+		<result property="check" column="CLDR_CHECK" />
+	</resultMap>
+
+	<select id="getCalendarList2" parameterType="map" resultMap="mapping2">
+		select * from calendar where (cldr_category = #{CLDR_CATEGORY}
+					or cldr_category = #{userId})
+				<if test="CLDR_START != null">
+					and cldr_start  <![CDATA[>=]]> to_date(#{CLDR_START}, 'YYYY-MM') 
+					and cldr_start <![CDATA[<=]]> add_months(to_date(#{CLDR_START}, 'YYYY-MM'),1)-1 
+				</if>
+		order by CLDR_START
+	</select>
+
+	<select id="getCalDetail" parameterType="string" resultMap="mapping2">
+		select * from calendar where cldr_code = #{groupId}
+	</select>
+
+	<insert id="insertCal" parameterType="map">
+		<selectKey order="BEFORE" resultType="string" keyProperty="groupId">
+			select 'CLDR'||SEQ_CLDR_CODE.nextval from dual
+		</selectKey>
+		insert into calendar
+		values(#{groupId},#{title},#{content},to_date(#{start},'yyyy-MM-dd HH24:MI'),to_date(#{end},'yyyy-MM-dd HH24:MI'),#{allDay},#{color},#{memNo},#{category},#{check})
+	</insert>
+	<update id="updateCal" parameterType="map">
+		update calendar
+		<if test="memo != null">
+			set cldr_memo = #{memo}
+		</if>
+		<if test="start != null">
+			set cldr_start = to_date(#{start},'yyyy-MM-dd HH24:MI'),
+			    cldr_end = to_date(#{end},'yyyy-MM-dd HH24:MI')
+		</if>
+		where cldr_code = #{groupId}
+	</update>
+	
+	<update id="updateCheckBox" parameterType="map">
+		update calendar
+		set cldr_check = #{check}
+		where cldr_code = #{groupId}
+	</update>
+	
+	<delete id="deleteCal" parameterType="map">
+		delete from calendar
+		where cldr_code = #{groupId}
+	</delete>
+	
+	
+	
+	
+</mapper>

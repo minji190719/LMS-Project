@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.ChartMapper">
+	<select id="getDepartmentInfo" resultType="org.hdcd.vo.DepartmentVO">
+		SELECT * 
+		FROM DEPARTMENT
+	</select>
+	
+	
+	<sql id="stu_genderInput">
+		<if test="stu_gender != null and stu_gender != ''">
+			AND B.MEM_SEX = #{stu_gender}
+		</if>
+	</sql>
+	
+	<sql id="stu_depInput">
+		<if test="stu_dep != null and stu_dep != ''">
+			AND A.STU_DEP = #{stu_dep}
+		</if>
+	</sql>
+	
+	<sql id="stu_schyearInput">
+		<if test="stu_schyear != null and stu_schyear != ''">
+			AND A.STU_SCHYEAR = #{stu_schyear} 
+		</if>
+	</sql>
+	
+	<select id="getChartData" parameterType="string" resultType="java.util.Map">
+		SELECT DISTINCT STU_JOINYEAR AS YEAR, COUNT(STU_JOINYEAR) AS CNT
+		  FROM STUDENT A, MEMBER B
+		 WHERE A.SMEM_NO=B.MEM_NO
+		 <include refid="stu_genderInput"/>
+		 <include refid="stu_depInput"/>
+		 <include refid="stu_schyearInput"/>
+		 GROUP BY STU_JOINYEAR
+		 ORDER BY A.STU_JOINYEAR 
+	</select>
+	
+	<select id="getCollAvgPriceChartDataList" resultType="java.util.Map">
+		  SELECT A.COL_NAME, ROUND(AVG(B.DEP_FEE), 0) AS COLL_AVG_PRICE
+		    FROM COLLEGE A, DEPARTMENT B
+		   WHERE A.COL_CODE=B.COL_CODE
+		   GROUP BY A.COL_NAME
+	</select>
+	
+	<select id="getDepAvgPriceChartDataList" resultType="java.util.Map">
+		SELECT DEP_NAME, DEP_FEE
+    	  FROM DEPARTMENT
+	</select>
+	
+	
+	<sql id="surStatScoreInGender">
+		<if test="stu_gender != null and stu_gender != ''">
+			AND C.MEM_SEX = #{stu_gender}
+		</if>
+	</sql>
+	
+	<sql id="surStatScoreInDep">
+		<if test="stu_dep != null and stu_dep != ''">
+			AND B.STU_DEP = #{stu_dep}
+		</if>
+	</sql>
+	
+	<sql id="surStatScoreInSchyear">
+		<if test="stu_schyear != null and stu_schyear != ''">
+			AND B.STU_SCHYEAR = #{stu_schyear}
+		</if>
+	</sql>
+	<select id="getSurStatScore" parameterType="string" resultType="java.util.Map">
+		SELECT ROUND(AVG(A.SURV_ANSWER1), 1) AS SURV_ANSWER1, ROUND(AVG(A.SURV_ANSWER2), 1) AS SURV_ANSWER2, ROUND(AVG(A.SURV_ANSWER3), 1) AS SURV_ANSWER3
+		  FROM POPUP_SURVEY A, STUDENT B, MEMBER C
+		 WHERE A.MEM_NO=B.SMEM_NO
+		   AND B.SMEM_NO=C.MEM_NO
+		   <include refid="surStatScoreInGender"/>
+		   <include refid="surStatScoreInDep"/>
+		   <include refid="surStatScoreInSchyear"/>
+	</select>
+	
+	<sql id="inputSurv_answerNum">
+		<if test="sur_question != null and sur_question != ''">
+			AND A.${sur_question} = #{i}
+		</if>
+	</sql>
+	
+	<select id="getSurDetailStatScore" parameterType="string" resultType="java.util.Map">
+		SELECT COUNT(*) AS SATISFACTION
+		FROM POPUP_SURVEY A, STUDENT B, MEMBER C
+		WHERE A.MEM_NO=B.SMEM_NO
+		   AND B.SMEM_NO=C.MEM_NO
+		   AND LENGTH(C.MEM_NO) = 8
+		   <include refid="inputSurv_answerNum"/>
+		   <include refid="surStatScoreInGender"/>
+		   <include refid="surStatScoreInDep"/>
+		   <include refid="surStatScoreInSchyear"/>
+	</select>
+	
+</mapper>

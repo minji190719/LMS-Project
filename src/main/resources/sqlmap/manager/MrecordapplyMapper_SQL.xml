@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MrecordmanageMapper">
+
+	<select id="selectAllList" resultType = "RecordApplyListVO">
+		select a.rcrda_code, a.rcrda_startyear, a.rcrda_startsemester, a.rcrda_date, a.smem_no, b.mem_name, a.rcrda_reason, a.rcrda_state from record_apply a, member b
+			where a.smem_no = b.mem_no order by a.rcrda_date desc
+	</select>
+	
+	<select id = "selectsNo" resultType = "java.util.Map" parameterType = "String">
+		select * from (select * from member a
+						inner join student b
+						on(a.mem_no = b.smem_no)
+						where a.mem_no = #{mem_no}) a,
+						(select * from record_apply where rcrda_reason=#{rcrda_reason}) b
+						where a.mem_no = b.smem_no
+	</select>
+
+	<update id="updateStudent" parameterType = "String">
+	update student set stu_record = '재학' where smem_no = #{smem_no}
+	</update>
+	<update id="updateStudentre" parameterType = "String">
+	update student set stu_record = '휴학' where smem_no = #{smem_no}
+	</update>
+	
+	<update id="validationRecord" parameterType = "String">
+	update record_apply set rcrda_state = 1 where rcrda_code = #{rcrda_code}
+	</update>
+	
+	<update id="updateRecord" parameterType = "String">
+	update record_apply set rcrda_state = 2, rcrda_reject = #{rcrda_reject} where rcrda_code = #{rcrda_code}
+	</update>
+	
+	
+</mapper>

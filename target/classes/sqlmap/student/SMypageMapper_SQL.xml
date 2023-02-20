@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MypageMapper">
+
+	<select id="MypageList" resultType="MyPageVO" parameterType="String">
+	select a.smem_no, b.mem_name, c.col_code, a.stu_joinyear, c.dep_code, c.dep_name, a.stu_schyear, a.stu_semester, a.stu_dep, b.mem_reg1, b.mem_sex, a.stu_record,
+	b.mem_tel, b.mem_email, b.mem_email, b.mem_postnum, b.mem_addr1, b.mem_addr2, b.mem_bank, b.mem_depo, b.mem_banknum, d.col_name, b.mem_photopath, b.mem_pass
+	from student a, member b, department c, college d
+	where smem_no = #{smem_no} and a.smem_no = b.mem_no and a.dep_code = c.dep_code and c.col_code = d.col_code
+	</select>
+
+
+	<select id="recordhis" resultType="RecordApplyVO" parameterType = "String">
+		select rcrda_startyear, rcrda_startsemester,rcrda_endyear, rcrda_endsemester, rcrda_start, rcrda_reason, rcrda_state, rcrda_reject,rcrda_record
+    	from record_apply where smem_no = #{smem_no} order by rcrda_start desc
+	</select>
+	
+	<update id="updatepic" parameterType = "MemberVO">
+		update member set mem_tel = #{mem_tel}, mem_email = #{mem_email}, mem_postnum = #{mem_postnum}, mem_pass = #{mem_pass},
+		mem_addr1 = #{mem_addr1}, mem_addr2 = #{mem_addr2},mem_bank = #{mem_bank} , mem_depo = #{mem_depo}, mem_banknum = #{mem_banknum}, mem_state = 1
+		 where mem_no = #{mem_no}
+	</update>
+	
+	<update id="updateimg" parameterType = "MemberVO">
+	update member set mem_photopath = #{mem_photopath} where mem_no = #{mem_no}
+	
+	</update>
+</mapper>

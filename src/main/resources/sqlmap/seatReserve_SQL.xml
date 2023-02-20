@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.SeatMapper">
+
+	<select id="selectMemName" parameterType="String" resultType="String">
+		select mem_name from member where mem_no = #{mem_no}
+	</select>
+
+	<update id="updateNewSeat" parameterType="String">
+		update seat set smem_no = #{smem_no}, mem_name = #{stu_name}, seat_start = #{seat_start}, seat_state = 1 where seat_code = #{seat_code}
+	</update>
+	
+	<select id="selectSeatList" resultType="SeatVO">
+		select * from seat
+	</select>
+	
+	<update id="updateExitSeat" parameterType="String">
+		update seat set smem_no = null, mem_name = null, seat_start = null, seat_state = 0 where seat_code = #{seat_code}
+	</update>
+	
+	<update id="updateSeatExtendTime" parameterType="String">
+		update seat set seat_start = #{seat_start} where seat_code = #{seat_code}
+	</update>
+</mapper>

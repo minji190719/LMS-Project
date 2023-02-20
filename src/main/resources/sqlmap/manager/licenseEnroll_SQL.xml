@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.ManagerLicenseEnrollMapper">
+	<select id="licenseEnrollList" resultType="org.hdcd.vo.LicenseEnrollVO">
+		SELECT * 
+		  FROM LICENSE_ENROLL
+		  ORDER BY TO_NUMBER(LICEN_CODE) DESC
+	</select>
+	
+	<select id="licenseEnrollDetail" parameterType="string" resultType="org.hdcd.vo.LicenseEnrollVO">
+		SELECT * 
+		FROM LICENSE_ENROLL
+		WHERE LICEN_CODE = #{licen_code}
+	</select>
+	
+	<update id="licenseEnrollReturn" parameterType="string">
+		UPDATE LICENSE_ENROLL
+		   SET LICEN_REJECT = #{rejectContent},
+		       ENROLL_STATE = 2
+		   WHERE LICEN_CODE = #{license_code}
+	</update>
+	
+	<update id="licenseEnrollValidation" parameterType="string">
+		UPDATE LICENSE_ENROLL
+		   SET ENROLL_STATE = 1
+		 WHERE LICEN_CODE = #{licen_code}
+	</update>
+	
+</mapper>

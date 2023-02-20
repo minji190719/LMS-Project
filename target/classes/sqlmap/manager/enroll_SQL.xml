@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MEnrollUserMapper">
+
+	<select id="selectOne" resultType="DepartmentVO">
+		select * from department where dep_code = #{depCode}
+	</select>
+	
+	<insert id="insertMem" parameterType="MemberVO">
+		insert into member(mem_no, mem_pass, mem_name, mem_tel, mem_sex, mem_addr1, mem_addr2, mem_email, mem_reg1, mem_reg2)
+		values(#{mem_no}, #{mem_pass},#{mem_name},#{mem_tel},#{mem_sex},#{mem_addr1},#{mem_addr2},#{mem_email},#{mem_reg1},#{mem_reg2})
+	</insert>
+	
+	<insert id="insertAuth" parameterType="String">
+		insert into member_auth(mem_no, mem_auth) 
+		values(#{mem_no}, 'ROLE_STUDENT')
+	</insert>
+	
+
+	<insert id="insertStu" parameterType="StudentVO">
+		insert into student(smem_no, dep_code, stu_dep, stu_semester, stu_mnl, stu_mcl, stu_cnl, stu_ccl, stu_joinyear, stu_record, stu_schyear)
+		values(#{smem_no}, #{dep_code}, #{stu_dep}, #{stu_semester}, #{stu_mnl}, #{stu_mcl}, #{stu_cnl}, #{stu_ccl}, #{stu_joinyear}, #{stu_record}, #{stu_schyear})
+	</insert>
+	
+	
+	
+</mapper>

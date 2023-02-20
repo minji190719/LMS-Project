@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.POpenLecAttendMapper">
+
+	<select id="selectMyOpenLecList" parameterType="string" resultType="map">
+		select lol.*, l.lec_code, l.assign_code, lr.room_num, 
+        	  (select d.dep_name 
+            	 from professor p, department d 
+            	where p.dep_code = d.dep_code
+              	  and p.pmem_no = #{userId}) as dep_name, c.col_name
+	     from lec_open_list lol, lecture l, assign_room ar, lecture_room lr, college c
+	    where lol.lol_code = l.lol_code 
+	      and l.assign_code = ar.assign_code
+	      and ar.room_code = lr.room_code
+	      and lr.col_code = c.col_code
+	      and lol.pmem_no = #{userId} 
+	      and l.lec_state = 1
+	</select>
+	
+	<select id="selectMyLecNameNCode" parameterType="string" resultType="map">
+		select lol.lol_year, lol.lol_semester, lol.lol_name,  lol.lol_code
+			   , l.lec_code, d.dep_name, c.col_name
+  		  from lec_open_list lol, lecture l, professor p, 
+                department d, college c
+  		 where lol.lol_code = l.lol_code
+           and lol.pmem_no = p.pmem_no
+           and p.dep_code = d.dep_code
+           and d.col_code = c.col_code
+   		   and l.lec_state = 1
+  		   and lol.pmem_no = #{userId}
+	</select>
+	
+	<select id="selectLecStudentList" parameterType="string" resultType="map">
+		select distinct s.*, m.mem_name, c.col_name
+ 		  from stu_timetable st, student s, member m, department d, college c 
+		 where m.mem_no = s.smem_no
+ 		   and s.smem_no = st.smem_no
+  		   and s.dep_code = d.dep_code
+ 		   and d.col_code = c.col_code
+ 		   and st.lec_code = #{lec_code}
+ 		 order by s.smem_no asc
+	</select>	
+
+	<select id="selectLecStudentInfo" parameterType="StudentVO" resultType="map">
+		select c.col_name, s.stu_dep, s.smem_no, m.mem_name, 
+			   s.stu_schyear, m.mem_tel, m.mem_email, m.mem_photopath, s.stu_semester
+		  from college c, department d, student s, member m
+		 where c.col_code = d.col_code
+		   and d.dep_code = s.dep_code
+		   and s.smem_no = m.mem_no
+		   and s.smem_no = #{smem_no}
+	</select>
+	
+	<select id="selectLecWeekList" parameterType="string" resultType="map">
+		select l.lec_code, c.col_name, d.dep_name, lol.lol_schyear, 
+               lol.lol_limit, lol.lol_day1, lol.lol_startime1,   
+               lol.lol_endtime1, lol.lol_day2, lol.lol_startime2,
+         	   lol.lol_endtime2, lr.room_num, lol.lol_credit
+          from lec_open_list lol, lecture l, assign_room ar, lecture_room lr
+              , professor p,  department d, college c 
+		  where c.col_code = d.col_code
+		    and d.dep_code = p.dep_code
+		    and p.pmem_no = lol.pmem_no
+		    and lol.lol_code = l.lol_code
+		    and l.ASSIGN_CODE = ar.assign_code
+		    and ar.room_code = lr.room_code
+		    and  lol.lol_code = #{lolCode}
+	</select>
+	
+	<select id="selectAttendStudentList" parameterType="AttendanceVO" resultType="map">
+		select distinct st.smem_no, st.lec_code, ad.attend_code, ad.attend_state, s.stu_dep, 
+                m.mem_name, s.dep_code, c.col_name
+		  from stu_timetable st left outer join  attendance ad on (st.lec_code = ad.lec_code
+		                                                           and ad.attend_week = #{attend_week}
+		                                                           and ad.attend_day = #{attend_day}
+		                                                           and st.smem_no = ad.smem_no)
+		                        left outer join student s on (st.smem_no = s.smem_no)
+		                        left outer join member m on (st.smem_no = m.mem_no)
+		                        left outer join department d on (s.dep_code = d.dep_code)
+		                        left outer join college c on (d.col_code = c.col_code) 
+		where st.lec_code = #{lec_code}
+		order by st.smem_no asc
+	</select>
+	
+	<update id="insertAttentance" parameterType="AttendanceVO">
+		merge into attendance
+			 using dual
+			    on (smem_no = #{smem_no} and lec_code =#{lec_code} and attend_week = #{attend_week} and attend_day = #{attend_day})
+		when matched then
+				update set attend_state = #{attend_state}
+		when not matched then
+				insert ( attend_code, lec_code, smem_no, attend_state, attend_week, attend_day)
+				values (
+						'AD'||LPAD(seq_attendcode.nextval, 4, '0'), #{lec_code}, #{smem_no}, #{attend_state}, #{attend_week}, #{attend_day}
+						)
+	</update>
+
+	
+	<select id="selectAttendApplyList" parameterType="string" resultType="map">
+		select aa.aa_code as aa_code, aa.attend_code as attend_code, aa.aa_state as aa_state, aa.aa_reason as aa_reason,
+		       ad.smem_no as smem_no, ad.lec_code as lec_code, m.mem_name as mem_name,
+		       lol.lol_name as lol_name
+		  from attend_apply aa left outer join attendance ad on(aa.attend_code = ad.attend_code)
+		                       left outer join lecture l on(ad.lec_code = l.lec_code)
+		                       left outer join lec_open_list lol on(l.lol_code = lol.lol_code)
+		                       left outer join member m on(ad.smem_no = m.mem_no)
+		 where lol.pmem_no = #{userId}
+	  order by aa.aa_code desc
+	</select>
+	
+	<select id="selectAttendApplyDetail" parameterType="string" resultType="map">
+		 select distinct
+			    aa_state as aa_state, aa_reason as aa_reason, aa_detail as aa_detail, aa.aa_code as aa_code,
+			    ap_code as ap_code, file_name as file_name, file_originnm as file_originnm, file_path as file_path,
+			    ad.smem_no as smem_no, attend_week as attend_week, attend_day as attend_day,
+			    st.lec_code as lec_code, st_day1 as st_day1, st_starttime1 as st_starttime1, st_endtime1 as st_endtime1, st_day2 as st_day2, st_starttime2 as st_starttime2, st_endtime2 as st_endtime2, st_year as st_year, st_semester as st_semester,
+			    l.lol_code as lol_code,
+			    lol_name as lol_name,
+			    mem_name as mem_name
+		   from attend_apply aa left outer join attend_prove ap on(aa.aa_code = ap.aa_code)
+			                     left outer join attendance ad on(aa.attend_code = ad.attend_code)
+			                     left outer join stu_timetable st on(ad.lec_code = st.lec_code)
+			                     left outer join lecture l on(ad.lec_code = l.lec_code)
+			                     left outer join lec_open_list lol on(l.lol_code = lol.lol_code)
+			                     left outer join member m on(m.mem_no = ad.smem_no)
+		  where  ad.smem_no = st.smem_no
+		    and aa.aa_code = #{aaCode}
+	</select>
+
+	<update id="updateAttendApply" parameterType="string">
+		update attend_apply
+		   set aa_state = 1
+		 where aa_code = #{aaCode}
+	</update>
+	
+	<update id="updateAttendanceState" parameterType="string">
+		update attendance
+		   set attend_state = 0
+		 where attend_code = #{adCode}
+	</update>
+	
+	<update id="updateAttentReject" parameterType="AttendApplyVO">
+		update attend_apply
+		   set aa_state = 2, aa_reject = #{aa_reject}
+		 where aa_code = #{aa_code}
+	</update>
+	
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.CertificateMapper">
+	<select id="getCertificateList" resultType="org.hdcd.vo.CertificateVO">
+		SELECT * FROM CERTIFICATE
+	</select>
+	<select id="memberInfo" parameterType="string" resultType="java.util.Map">
+		SELECT A.*, B.*
+		FROM MEMBER A, STUDENT B
+		WHERE MEM_NO = B.SMEM_NO
+		AND B.SMEM_NO=#{userSession}
+	</select>
+	
+	<update id="certificateApply" parameterType="org.hdcd.vo.CertificateHisVO" useGeneratedKeys="true">
+		<selectKey keyProperty="crtfh_code" order="BEFORE" resultType="string">
+			SELECT SEQ_CRTFH_CODE.NEXTVAL FROM DUAL 
+		</selectKey>
+		INSERT INTO CERTIFICATE_HIS VALUES(
+		    #{crtfh_code}, #{smem_no}, #{crtf_code}, SYSDATE, #{crtfh_count}, #{crtfh_ttlprice}, #{crtfh_payway}, #{download_type}
+		)
+		
+	</update>
+	
+	<select id="getCertificateHis" parameterType="string" resultType="org.hdcd.vo.CertificateHisVO">
+		SELECT * 
+		  FROM CERTIFICATE_HIS
+		  WHERE CRTFH_CODE = #{crtfh_code}
+	</select>
+	
+	<select id="insertPOFInfo" parameterType="string" resultType="java.util.Map">
+		SELECT A.MEM_NO, A.MEM_NAME, B.STU_DEP, B.STU_SCHYEAR, D.COL_NAME 
+		  FROM MEMBER A, STUDENT B, DEPARTMENT C, COLLEGE D
+		  WHERE A.MEM_NO = #{userId}
+		  AND A.MEM_NO=B.SMEM_NO
+		  AND B.DEP_CODE=C.DEP_CODE
+		  AND C.COL_CODE=D.COL_CODE
+	</select>
+	
+	<select id="getCertificateHisList" parameterType="string" resultType="org.hdcd.vo.CertificateHisVO">
+		SELECT * 
+		FROM CERTIFICATE_HIS
+		WHERE SMEM_NO = #{userSession}
+		ORDER BY CRTFH_DATE DESC
+	</select>
+	
+</mapper>

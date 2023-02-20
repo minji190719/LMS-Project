@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.SRecordApplyMapper">
+
+	<select id = "selectAllrecordapply" resultType = "RecordApplyVO">
+		select * from record_apply
+	</select>
+	
+	<select id = "selectrecordapplyByNo" resultType = "RecordApplyVO" parameterType = "String">
+		select * from record_apply where smem_no = #{smem_no} order by rcrda_date desc
+	</select>
+	
+	<insert id = "add_to_record" parameterType = "RecordApplyVO" useGeneratedKeys="true">
+		<selectKey order="BEFORE" resultType="String" keyProperty="rcrda_code">
+			select seq_rcrda_code.nextval from dual
+		</selectKey>
+	insert into record_apply (rcrda_code, smem_no, rcrda_record, rcrda_reason, rcrda_startyear, rcrda_startsemester,rcrda_endyear,rcrda_endsemester, rcrda_start, rcrda_date, rcrda_state, rcrda_reject)
+	values(#{rcrda_code}, #{smem_no}, #{rcrda_record}, #{rcrda_reason},  #{rcrda_startyear}, #{rcrda_startsemester},#{rcrda_endyear},#{rcrda_endsemester},
+	sysdate, sysdate, 0, null)
+	</insert>
+	
+	<delete id = "delete_to_record" parameterType = "String">
+		delete from record_apply where rcrda_code = #{rcrda_code}
+	</delete>
+
+	<select id = "selectinfoByNo" resultType = "java.util.Map" parameterType = "String">
+		select b.smem_no, a.mem_name, b.stu_joinyear, a.mem_tel, b.stu_dep, b.stu_schyear, b.stu_record, a.mem_reg1 
+		from member a, student b
+		where b.smem_no = #{smem_no} and a.mem_no = b.smem_no	
+	</select>
+</mapper>

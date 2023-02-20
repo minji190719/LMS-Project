@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+<!-- 	[마이바티스] 스프링 '_'를 사용한 컬럼명을 사용 시 (ex) BOOK테이블의 BOOK_ID카멜 케이스로 읽어줌 (bookId) -->
+<!-- 	<settings> -->
+<!-- 		<setting name="" value=""/> -->
+<!-- 	</settings>	 -->
+	<settings>
+	    <setting name="callSettersOnNulls" value="true"/>
+	    <setting name="returnInstanceForEmptyRow" value="true"/>
+	</settings>
+	<typeAliases>
+		<typeAlias type="org.hdcd.vo.AdminVO" alias="AdminVO"/>
+		<typeAlias type="org.hdcd.vo.AssignRoomVO" alias="AssignRoomVO"/>
+		<typeAlias type="org.hdcd.vo.AttendanceVO" alias="AttendanceVO"/>
+		<typeAlias type="org.hdcd.vo.AttendApplyVO" alias="AttendApplyVO"/>
+		<typeAlias type="org.hdcd.vo.AttendProveVO" alias="AttendProveVO"/>
+		<typeAlias type="org.hdcd.vo.BoardFileVO" alias="BoardFileVO"/>
+		<typeAlias type="org.hdcd.vo.BoardVO" alias="BoardVO"/>
+		<typeAlias type="org.hdcd.vo.BookRentalVO" alias="BookRentalVO"/>
+		<typeAlias type="org.hdcd.vo.BookVO" alias="BookVO"/>
+		<typeAlias type="org.hdcd.vo.CalendarVO" alias="CalendarVO"/>
+		<typeAlias type="org.hdcd.vo.CapabilityVO" alias="CapabilityVO"/>
+		<typeAlias type="org.hdcd.vo.CertificateHisVO" alias="CertificateHisVO"/>
+		<typeAlias type="org.hdcd.vo.CertificateVO" alias="CertificateVO"/>
+		<typeAlias type="org.hdcd.vo.CollegeVO" alias="CollegeVO"/>
+		<typeAlias type="org.hdcd.vo.CommunityFileVO" alias="CommunityFileVO"/>
+		<typeAlias type="org.hdcd.vo.CommunityVO" alias="CommunityVO"/>
+		<typeAlias type="org.hdcd.vo.CounselApplyVO" alias="CounselApplyVO"/>
+		<typeAlias type="org.hdcd.vo.CounselVO" alias="CounselVO"/>
+		<typeAlias type="org.hdcd.vo.DepartmentVO" alias="DepartmentVO"/>
+		<typeAlias type="org.hdcd.vo.EmployApplyVO" alias="EmployApplyVO"/>
+		<typeAlias type="org.hdcd.vo.EmployCompanyVO" alias="EmployCompanyVO"/>
+		<typeAlias type="org.hdcd.vo.EmployProgramVO" alias="EmployProgramVO"/>
+		<typeAlias type="org.hdcd.vo.EnrollFeeVO" alias="EnrollFeeVO"/>
+		<typeAlias type="org.hdcd.vo.FoodCalendarVO" alias="FoodCalendarVO"/>
+		<typeAlias type="org.hdcd.vo.LecApplyVO" alias="LecApplyVO"/>
+		<typeAlias type="org.hdcd.vo.LecGradeCvtVO" alias="LecGradeCvtVO"/>
+		<typeAlias type="org.hdcd.vo.LecGradeVO" alias="LecGradeVO"/>
+		<typeAlias type="org.hdcd.vo.LecHistoryVO" alias="LecHistoryVO"/>
+		<typeAlias type="org.hdcd.vo.LecOpenListVO" alias="LecOpenListVO"/>
+		<typeAlias type="org.hdcd.vo.LecSurveyVO" alias="LecSurveyVO"/>
+		<typeAlias type="org.hdcd.vo.LecTestVO" alias="LecTestVO"/>
+		<typeAlias type="org.hdcd.vo.LecturePlanVO" alias="LecturePlanVO"/>
+		<typeAlias type="org.hdcd.vo.LectureRoomVO" alias="LectureRoomVO"/>
+		<typeAlias type="org.hdcd.vo.LectureVO" alias="LectureVO"/>
+		<typeAlias type="org.hdcd.vo.LicenseEnrollVO" alias="LicenseEnrollVO"/>
+		<typeAlias type="org.hdcd.vo.LicenseFileVO" alias="LicenseFileVO"/>
+		<typeAlias type="org.hdcd.vo.LikeVO" alias="LikeVO"/>
+		<typeAlias type="org.hdcd.vo.MemberVO" alias="MemberVO"/>
+		<typeAlias type="org.hdcd.vo.MemberAuthVO" alias="MemberAuthVO"/>
+		<typeAlias type="org.hdcd.vo.NoticeFileVO" alias="NoticeFileVO"/>
+		<typeAlias type="org.hdcd.vo.NoticeVO" alias="NoticeVO"/>
+		<typeAlias type="org.hdcd.vo.PopupSurveyVO" alias="PopupSurveyVO"/>
+		<typeAlias type="org.hdcd.vo.PopupVO" alias="PopupVO"/>
+		<typeAlias type="org.hdcd.vo.PortletVO" alias="PortletVO"/>
+		<typeAlias type="org.hdcd.vo.ProfessorVO" alias="ProfessorVO"/>
+		<typeAlias type="org.hdcd.vo.RecordApplyVO" alias="RecordApplyVO"/>
+		<typeAlias type="org.hdcd.vo.RecordApplyListVO" alias="RecordApplyListVO"/>
+		<typeAlias type="org.hdcd.vo.RecordHisVO" alias="RecordHisVO"/>
+		<typeAlias type="org.hdcd.vo.ReplyVO" alias="ReplyVO"/>
+		<typeAlias type="org.hdcd.vo.ReportVO" alias="ReportVO"/>
+		<typeAlias type="org.hdcd.vo.ScholarApplyVO" alias="ScholarApplyVO"/>
+		<typeAlias type="org.hdcd.vo.ScholarFileVO" alias="ScholarFileVO"/>
+		<typeAlias type="org.hdcd.vo.ScholarHisVO" alias="ScholarHisVO"/>
+		<typeAlias type="org.hdcd.vo.ScholarListVO" alias="ScholarListVO"/>
+		<typeAlias type="org.hdcd.vo.SeatVO" alias="SeatVO"/>
+		<typeAlias type="org.hdcd.vo.StudentVO" alias="StudentVO"/>
+		<typeAlias type="org.hdcd.vo.StuTimetableVO" alias="StuTimetableVO"/>
+		<typeAlias type="org.hdcd.vo.TaskVO" alias="TaskVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerFileVO" alias="VolunteerFileVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerHisVO" alias="VolunteerHisVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerListVO" alias="VolunteerListVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerOutVO" alias="VolunteerOutVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerQuizVO" alias="VolunteerQuizVO"/>
+		<typeAlias type="org.hdcd.vo.VolunteerStateVO" alias="VolunteerStateVO"/>
+		<typeAlias type="org.hdcd.vo.CommunityLikeVO" alias="CommunityLikeVO"/>
+		<typeAlias type="org.hdcd.vo.MyPageVO" alias="MyPageVO"/>
+	</typeAliases>
+</configuration>

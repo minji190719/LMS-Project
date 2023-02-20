@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	
+	   <!-- 웹소켓 context 실행되게 root에다가 저장 -->
+       <import resource="websocket-context.xml"/>
+	
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+<!-- 	root-context.xml : 스프링 설정을 위한 파일 
+		
+		스프링 설정
+			- view 와 관련되지 않은 객체를 정의
+			- service(비즈니스 기능), Dao(repository:저장소), Db등 비즈니스 로직과 관련된 설정
+			- BasicDatasource dataSource = new BasicDataSource();
+			- dataSource.setDriverClassName()="oracle.jdbc,driver.OracleDriver";
+-->
+
+<!-- dataSource = 데이터베이스와 관련된 정보를 설정한다 
+	BasicDataSource data = new BasicDataSource(); 
+	스프링 프레임워크(디자인패턴(mvc) + 라이브러리(import)는 기동 시 dataSource를 자바빈으로 등록해준다)
+-->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+		<property name="url" value="jdbc:oracle:thin:@112.220.114.130:1521:xe"></property>
+		<property name="username" value="team3_202207F"></property>
+		<property name="password" value="java"></property>
+	</bean>
+	
+	
+	<!-- 
+      데이터베이스와 연결을 맺고 끊어질 때까지의 라이프 사이클을 관리해주는 SqlSession 객체를 생성 
+      1) dataSource 
+      2) Mapper xml의 위치 지정
+         - src/main/resources/ 
+    -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="mapperLocations" value="classpath:/sqlmap/**/*_SQL.xml"></property>
+		<property name="configLocation" value="/WEB-INF/mybatisAlias/mybatisAlias.xml"></property>
+	</bean>
+	
+<!-- 	데이터베이스에 개별적으로 쿼리를 실행시키는 객체, 이 객체를 통해 쿼리실행 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<!-- <constructor-arg name="sqlSessionFactory" index="0" ref="sqlSessionFactory"></constructor-arg> -->
+		<constructor-arg ref="sqlSession"></constructor-arg>
+	</bean>
+	
+	
+<!-- 	Mapper 인터페이스 설정 -->
+<!-- 	개발자가 직접 DAO를 설정하지 않아도 자동으로 Mapper 인터페이스를 활용하는 객체를 생성하게 된다 -->
+<!-- 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> -->
+<!-- 		<property name="basePackage" value="org.hdcd.mapper"></property> -->
+<!-- 	</bean> -->
+	
+	<mybatis-spring:scan base-package="org.hdcd.mapper"/>
+<!-- 	15장 트랜잭션 설정 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+<!-- 	어노테이션 기반의 트랜잭션 재어를 활성화 -->
+	<tx:annotation-driven/> 
+	
+	
+<!-- 	스프링 aop활성화 -->
+<!-- 	<aop:aspectj-autoproxy/> -->
+	
+<!-- 	aop 패키지를 컴포넌트 스캔 대상으로 등록 -->
+	
+<!-- 	<context:component-scan base-package="org.hdcd.aop"></context:component-scan> -->
+<!-- 	<context:component-scan base-package="org.hdcd.service"></context:component-scan> -->
+	
+	
+	
+	
+	
+	
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

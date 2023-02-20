@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MStudentManageMapper">
+	
+	<resultMap type="java.util.Map" id="mapForStudent">
+	    <result property="mem_photonm" column="MEM_PHOTONM" jdbcType="CLOB" javaType="java.lang.String"/>
+	</resultMap>
+	
+	<select id="selectAllStudent" parameterType="String" resultMap="mapForStudent">
+		select a.*,
+     		   b.*
+		  from student a, member b
+		 where a.smem_no = b.mem_no
+		 <include refid="checkDep"/>
+		 <include refid="checkRecord"/>
+		 <include refid="checkName"/>
+	</select>
+	
+	<sql id="checkDep">
+		<if test="stu_dep != '' and stu_dep != null">
+			and a.stu_dep = #{stu_dep}
+		</if>
+	</sql>
+
+	<sql id="checkRecord">
+		<if test="stu_record != '' and stu_record != null">
+			and a.stu_record = #{stu_record}
+		</if>
+	</sql>
+
+	<sql id="checkName">
+		<if test="mem_name != '' and mem_name != null">
+			and b.mem_name like '%'||#{mem_name}||'%'
+		</if>
+	</sql>
+
+	<select id="selectStudentDetail" parameterType="String" resultMap="mapForStudent">
+		select a.*,
+		       b.*
+		  from student a, member b
+		 where a.smem_no = b.mem_no  
+		   and a.smem_no = #{smem_no}
+	</select>
+	
+</mapper>

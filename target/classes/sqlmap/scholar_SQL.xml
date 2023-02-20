@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.ScholarMapper">
+	<!-- 대문자를 소문자로 변환 ctrl+shift+y-->
+	
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■학생■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<!-- ▶장학금 종류 전체 리스트 select -->
+	<select id="getScholarList" resultType="ScholarListVO">
+      select *
+        from (select row_number() over(order by scholar_list.schl_code asc) as schl_number,
+                     scholar_list.*
+                from scholar_list
+               where schl_end >= sysdate) 
+	</select>
+	
+	<!-- ▶[학생] 개별 장학금 신청 내역 출력 리스트 select  -->
+	<resultMap type="ScholarListVO" id="studentScholarApplyMap">
+		<result property="schl_code" column="schl_code"/>
+		<result property="schl_name" column="schl_name"/>
+		<result property="schl_price" column="schl_price"/>
+		<collection property="scholarApplyList" resultMap="scholarApplyMap"/>
+	</resultMap>
+	<resultMap type="ScholarApplyVO" id="scholarApplyMap">
+		<result property="scha_no" column="scha_no"/>
+		<result property="scha_date" column="scha_date"/>
+		<result property="scha_state" column="scha_state"/>
+		<result property="scha_reject" column="scha_reject"/>
+		<result property="scha_cdate" column="scha_cdate"/>
+		<result property="scha_number" column="scha_number"/>
+	</resultMap>
+	<select id="getScholarApplyList" parameterType="string" resultMap="studentScholarApplyMap">
+	<!--
+		select a.schl_code,
+		       a.schl_name,
+		       a.schl_price,
+               b.scha_no,
+		       b.scha_date,
+		       b.scha_state,
+		       b.scha_reject,
+		       b.scha_cdate
+		from scholar_list a inner join scholar_apply b
+			 on b.schl_code = a.schl_code
+		where b.smem_no = #{userId}
+		order by schl_code desc
+	-->
+	
+	    select *
+        from (select row_number() over(order by b.schl_code asc) as scha_number, 
+               a.schl_code,
+		       a.schl_name,
+		       a.schl_price,
+               b.scha_no,
+		       b.scha_date,
+		       b.scha_state,
+		       b.scha_reject,
+		       b.scha_cdate
+		from scholar_list a inner join scholar_apply b
+			 on b.schl_code = a.schl_code
+		where b.smem_no = #{userId}
+		order by b.schl_code asc)
+	</select>
+	
+	<!-- ▶[학생] 장학금 신청폼 insert -->
+	<insert id="insertScholarApply" parameterType="ScholarApplyVO" useGeneratedKeys="true">
+		insert into scholar_apply(scha_no, smem_no, schl_code, scha_date, scha_state)
+		values ('SCHA'||seq_scha_no.nextval, #{smem_no} , #{schl_code} , sysdate, 0)
+		<selectKey keyProperty="scha_no" keyColumn="scha_no" resultType="string" order="AFTER">
+			select 'SCHA'||seq_scha_no.currval from dual
+		</selectKey>
+	</insert>
+	
+	<!-- ▶[학생] 장학금 신청폼 insert가 성공할 경우, 폼에 딸린 장학증빙서류도 insert -->
+	<insert id="insertScholarApplyFile" parameterType="ScholarFileVO">
+		insert into scholar_file(schfile_code, file_name, file_size, file_originnm, file_path, scha_no, file_type)
+		values('SCHFILE'||seq_schfilecode.nextval, #{file_name}, #{file_size}, #{file_originnm}, #{file_path}, #{scha_no}, #{file_type})
+	</insert>
+	
+	<!-- ▶[학생] 장학금 신청 취소) 1. 파일 먼저 delete-->
+	<delete id="scholarApplyFileDelete" parameterType="string">
+		delete from scholar_file where scha_no=#{scha_no}
+	</delete>
+	
+	<!-- ▶[학생] 장학금 신청 취소) 2. 파일 delete 확인 후 신청 내용도 delete -->
+	<delete id="scholarApplyDelete" parameterType="string">
+		delete from scholar_apply where scha_no=#{scha_no}
+	</delete>	
+	
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■관리자■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<!-- ■■■■■■■■■■scholar_list■■■■■■■■ -->
+	<!-- ▶[관리자] 장학금 종류 추가 -->
+	<insert id="scholarListManageRegister" parameterType="ScholarListVO">
+		insert into scholar_list(schl_code, schl_name, schl_price, schl_start, schl_end, schl_target, schl_document)
+		values('SCHL'||seq_schl_code.nextval, #{schl_name}, #{schl_price}, #{schl_start}, #{schl_end}, #{schl_target}, #{schl_document})
+	</insert>
+	
+	<select id="getTotalScholarList" resultType="ScholarListVO">
+		select row_number() over(order by scholar_list.schl_end desc) as schl_number,
+                schl_code, schl_name, schl_price, schl_start, schl_end, schl_target, schl_document
+		from scholar_list
+	</select>
+	
+
+	<!-- ■■■■■■■■■■scholar_apply■■■■■■■■ -->
+	<!-- ▶[관리자] 장학금 전체 신청 내역 select -->
+	<sql id="ScholarTotalList">
+		select row_number() over(order by b.scha_no desc) as scha_number,
+            b.*,
+            a.*,
+            c.*
+		from scholar_list a
+		inner join scholar_apply b
+		    on b.schl_code = a.schl_code 
+		inner join scholar_file c
+		    on c.scha_no = b.scha_no
+	</sql>
+	<resultMap type="ScholarListVO" id="scholarTotalListMap">
+		<id property="schl_code" column="schl_code"/>
+		<result property="schl_name" column="schl_name"/>
+		<result property="schl_price" column="schl_price"/>
+		<collection property="scholarApplyList" resultMap="scholarTotalApplyMap"/>
+	</resultMap>
+	<resultMap type="ScholarApplyVO" id="scholarTotalApplyMap">
+		<id property="scha_no" column="scha_no"/>
+		<result property="smem_no" column="smem_no"/>
+		<result property="scha_date" column="scha_date"/>
+		<result property="scha_state" column="scha_state"/>
+		<result property="scha_reject" column="scha_reject"/>
+		<result property="scha_cdate" column="scha_cdate"/>
+		<result property="scha_number" column="scha_number"/>
+		<collection property="schaFileList" resultMap="scholarTotalApplyFileMap"></collection>
+	</resultMap>
+	<resultMap type="ScholarFileVO" id="scholarTotalApplyFileMap">
+		<id property="schfile_code" column="schfile_code"/>
+		<result property="file_name" column="file_name"/>
+		<result property="file_size" column="file_size"/>
+		<result property="file_originnm" column="file_originnm"/>
+		<result property="file_path" column="file_path"/>
+		<result property="file_type" column="file_type"/>
+	</resultMap>
+	<select id="getScholarTotalList" resultMap="scholarTotalListMap">
+		<include refid="ScholarTotalList"></include>
+	</select>
+	
+	<!-- ▶[관리자] 장학금 신청 내역 승인 처리 update -->
+	<update id="approveScholarship" parameterType="ScholarApplyVO">
+		update scholar_apply
+		set scha_state = #{scha_state},
+		    scha_reject = #{scha_reject},
+		    scha_cdate = sysdate
+		where scha_no = #{scha_no}
+	</update>
+	
+	
+	<!-- ▶[관리자] 장학금 심사 결과 상태값이 승인으로 바뀐 경우, 승인된 건의 상세 정보를 select -->
+	<select id="getApprovedDetails" parameterType="string" resultType="map">
+		select 
+              b.smem_no,
+              a.schl_code,
+              to_char(a.schl_end, 'yyyy/mm/dd') as schl_end
+		from scholar_list a inner join scholar_apply b
+		on b.schl_code = a.schl_code
+		where b.scha_no = #{scha_no}
+	</select>
+	
+	
+	<!-- ■■■■■■■■■■scholar_his■■■■■■■■ -->
+	<!-- ▶[관리자] 장학금이 승인된 경우, 장학금 수혜내역 테이블에 insert -->
+	<insert id="registerScholarHis" parameterType="ScholarHisVO">
+		insert into scholar_his(schh_code, smem_no, schl_code, schh_year, schh_semester, schh_state)
+		values('SCHH'||seq_schh_code.nextval, #{smem_no}, #{schl_code}, #{schh_year}, #{schh_semester}, 0)
+	</insert>
+</mapper>
+

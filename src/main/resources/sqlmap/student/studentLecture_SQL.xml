@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.SLectrueMapper">
+
+	<!-- 강의계획서 정보  -->
+	<select id="getAllPlanInfo" parameterType="String" resultType="map">
+		select * from (select * from lec_open_list where lol_code = #{lolCode}) a, lecture_plan b, member c, professor d, department e
+				where a.lol_code = b.lol_code
+				and a.pmem_no = d.pmem_no
+				and d.pmem_no = c.mem_no
+				and d.dep_code = e.dep_code
+	</select>
+	<!-- 현재 강의 리스트 -->
+	<select id="getNowMyGrade" parameterType="map" resultType="map">
+		select * from lec_grade where smem_no = #{SMEM_NO} and lg_year = #{LG_YEAR} and lg_semester = #{LG_SEMESTER}
+	</select>
+
+	<!--  강의리스트에 대한 모든 정보 출력 -->
+	<select id="selectAllInfo" resultType="map">
+		select * from LEC_OPEN_LIST a, LECTURE_PLAN b, PROFESSOR c, MEMBER d, DEPARTMENT e, LECTURE f
+				where f.LOL_CODE = a.LOL_CODE
+				and a.PMEM_NO = c.PMEM_NO
+				and b.LOL_CODE = a.LOL_CODE
+				and c.PMEM_NO = d.mem_no
+				and c.DEP_CODE = e.DEP_CODE
+	</select>
+	<!-- 내가 수강신청한 강의 리스트 -->
+	<select id="selectAllmyLecInfo" parameterType="String" resultType="map">
+		select * from (select * from LEC_APPLY
+				where SMEM_NO = #{SMEM_NO}) a, LECTURE b, LEC_OPEN_LIST c, LECTURE_PLAN d, PROFESSOR e, MEMBER f, DEPARTMENT g
+				where a.LEC_CODE = b.LEC_CODE
+				and b.LOL_CODE = c.LOL_CODE
+				and c.LOL_CODE = d.LOL_CODE
+				and c.PMEM_NO = e.PMEM_NO
+				and e.PMEM_NO = f.MEM_NO
+				and e.DEP_CODE = g.DEP_CODE
+	</select>
+	
+	<!-- 예비수강신청 후 정보 돌려주기 -->
+	<select id="selectLecInfo" parameterType="LecApplyVO" resultType="map">
+		select * from (select * from lec_apply
+				where lec_code = #{lec_code}) a, lecture b, lec_open_list c
+				where a.lec_code = b.lec_code
+				and b.lol_code=c.lol_code
+	</select>
+	
+	<!-- history에 넣을 정보들 한번에 불러오기 -->
+	<select id="getAllAboutlecHisInfo" parameterType="LecApplyVO" resultType="map">
+		select * from (select * from lec_apply
+			where la_code = #{la_code}
+			and smem_no = #{smem_no}
+			and lec_code = #{lec_code}
+			and la_state = #{la_state}) a, LECTURE b, LEC_OPEN_LIST c, MEMBER d
+			where a.lec_code = b.lec_code
+			and b.lol_code = c.lol_code
+			and c.PMEM_NO = d.mem_no
+	</select>
+	
+	<!-- history 삭제 -->
+	<delete id="deleteLecHistory" parameterType="map">
+		delete from lec_history 
+				where lec_code = (select lec_code from lec_apply where la_code = #{LA_CODE})
+				and smem_no=#{SMEM_NO}
+				and lh_year = #{ST_YEAR}
+				and lh_semester = #{ST_SEMESTER}
+	</delete>
+	
+	
+	<!-- 강좌 전체 리스트 -->
+	<select id="selectAll" resultType="LecOpenListVO">
+		select * from lec_open_list where lol_state = 1
+	</select>
+	
+	<!-- 강좌 개설 하나 뽑기 -->
+	<select id="selectLecOpen" resultType="LecOpenListVO" parameterType="String">
+		select * from lec_open_list where lol_code = #{lol_code}
+	</select>
+	
+	<!-- 교수한명 뽑기 -->
+	<select id="selectPmem" resultType="ProfessorVO" parameterType="String">
+		select * from professor where pmem_no = #{pMemNo}
+	</select>
+
+	<!-- 맴버 한명 뽑기 -->	
+	<select id="selectMem" parameterType="String" resultType="MemberVO">
+		select * from member where mem_no = #{pMemNo}
+	</select>
+	
+	<!-- 강의 하나 뽑기 -->
+	<select id="selectDep" parameterType="String" resultType="DepartmentVO">
+		select * from department where dep_code = #{depCode}
+	</select>
+
+	<!-- 강의계획서 -->
+	<select id="selectLecP" parameterType="String" resultType="LecturePlanVO">
+		select * from lecture_plan where lol_code = #{lolCode}
+	</select>	
+	
+	<!-- 강의 목록 -->
+	<select id="selectLecAll" resultType="LectureVO">
+		select * from lecture where lec_state = 1
+	</select>
+	
+	<!-- 강의 하나만 -->
+	<select id="selectLec" parameterType="String" resultType="LectureVO">
+		select * from lecture where lec_code = #{lecCode}
+	</select>
+	
+	<!-- 수강 바구니 추가 -->
+	<insert id="inserApply" parameterType="LecApplyVO" useGeneratedKeys="true">
+		<selectKey order="BEFORE" keyProperty="la_code" resultType="String">
+			select 'LA'||LPAD(TO_CHAR(SEQ_LA_CODE.nextval),4,0) from dual
+		</selectKey>
+		insert into lec_apply values( #{la_code}, #{smem_no}, #{lec_code}, #{la_state})
+	</insert>
+	
+	<!-- 내 수강바구니 전체 출력 -->
+	<select id="selectLecApplyAll" parameterType="String" resultType="LecApplyVO">
+		select * from lec_apply where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 수강바구니 삭제 -->
+	<delete id="deleteLecApply" parameterType="String">
+		delete from lec_apply where la_code = #{laCode}
+	</delete>
+	
+	<!-- 수강바구니 하나 출력 -->
+	<select id="selectLecApplyOne" parameterType="LecApplyVO" resultType="LecApplyVO">
+		select * from lec_apply 
+		<where>
+			<if test="lec_code != null">
+				lec_code = #{lec_code}
+			</if>
+			<if test="la_code != null">
+				and la_code = #{la_code}
+			</if>
+		</where>
+		and smem_no = #{smem_no}
+		and la_state = #{la_state}
+	</select>
+	
+	<!-- delete관련 정보 가져오기 -->
+	<select id="getDeleteInfo" parameterType="LecApplyVO" resultType="map">
+	 select * from ( select * from lec_apply 
+			 where smem_no = #{smem_no}
+			 and la_code = #{la_code}
+			 and la_state = #{la_state}) a, LECTURE b, LEC_OPEN_LIST c
+			 where a.lec_code = b.lec_code
+			 and b.lol_code = c.lol_code
+	</select>
+	
+	<!-- 수강이력 인서트 -->
+	<insert id="insertHis" parameterType="LecHistoryVO" useGeneratedKeys="true">
+	    <selectKey resultType="String" keyProperty="lhCode" order="BEFORE">
+        	SELECT 'LH'||LPAD(TO_CHAR(SEQ_LH_CODE.nextval),3,0) from dual
+    	</selectKey> 	
+		insert into lec_history
+						(lh_code, 
+						lh_semester, 
+						lh_year, 
+						lh_lecname, 
+						lh_professor, 
+						lh_credit,
+						lh_grade,
+						lh_retake_lec,
+						lh_acquire,
+						lec_code,
+						smem_no)
+		values
+						(#{lhCode}, 
+						#{lh_semester}, 
+						#{lh_year}, 
+						#{lh_lecname}, 
+						#{lh_professor}, 
+						0, 
+						null, 
+						0, 
+						1, 
+						#{lec_code},
+						#{smem_no})
+	</insert>
+
+	<update id="updateLecApply" parameterType="LecApplyVO" useGeneratedKeys="true">
+		update lec_apply set la_state = 1 where la_code = #{la_code}
+		<selectKey order="AFTER" resultType="string" keyProperty="lec_code">
+			select lec_code from lec_apply where la_code = #{la_code}
+		</selectKey>
+	</update>
+
+	<!-- 내 성적 리스트 조회 -->
+	<select id="getMyGradeList" parameterType="LecGradeVO" resultType="LecGradeVO">
+		select * from lec_grade where smem_no = #{smem_no}
+		<if test="lg_year != 0">
+			and lg_year = #{lg_year}
+		</if>
+		<if test="lg_semester != 0">
+			and lg_semester = #{lg_semester}
+		</if>
+	</select>
+
+	<!-- 강의평가 목록 출력 -->
+	<select id="getMyEvalList" parameterType="LecGradeVO" resultType="map">
+		select * from (select * from lec_grade 
+				where lg_year = #{lg_year}
+				and lg_semester = #{lg_semester}
+				and smem_no = #{smem_no}) a 
+				inner join LEC_HISTORY b
+				on(a.LH_CODE = b.LH_CODE)
+	</select>
+	
+	<!-- 강의평가여부 확인 1개이상이면 강의평가를 실시해야함 -->
+	<select id="checkEvalState" resultType="map" parameterType="LecGradeVO">
+		select cast (count(*) as NUMBER(10)) as total_cnt ,
+       		   cast (count(case when ls_state = 1 then 1 end) as NUMBER(10)) as true_cnt
+		       from lec_grade
+		       where smem_no = #{smem_no}
+			    and lg_year = #{lg_year}
+			    and lg_semester = #{lg_semester}
+	</select>
+	
+	<!-- 강의평가 등록 -->
+	<insert id="insertLecSurvey" parameterType="LecSurveyVO">
+		insert into lec_survey
+		values('LS'||LPAD(TO_CHAR(SEQ_LS_CODE.nextval),3,0),#{ls_question1}, #{ls_question2}, #{ls_question3}, #{ls_question4},
+		#{ls_question5}, #{ls_content}, #{ls_note}, #{lec_code}, #{smem_no})
+	</insert>
+	
+	<!-- 강의평가 완료시 상태 업데이트 -->
+	<update id="updateLecGradeState" parameterType="LecSurveyVO">
+		update lec_grade set ls_state = 1 where lec_code = #{lec_code} and smem_no = #{smem_no}
+	</update>
+	
+	<!-- 시간표등록 -->
+	<insert id="insertTimeTable" parameterType="StuTimetableVO">
+		insert into stu_timetable
+		values(
+		'ST'||LPAD(TO_CHAR(SEQ_ST_CODE.nextval),4,0),
+		#{smem_no},
+		#{lec_code},
+		#{st_day1},
+		#{st_starttime1},
+		#{st_endtime1},
+		#{st_day2},
+		#{st_starttime2},
+		#{st_endtime2},
+		#{st_year},
+		#{st_semester}
+		)
+	</insert>
+	
+	<!-- 시간표 삭제 -->
+	<delete id="deleteTimeTable" parameterType="map">
+		delete from STU_TIMETABLE
+			where SMEM_NO = #{SMEM_NO}
+			and LEC_CODE = (select lec_code from LEC_APPLY 
+										where LA_CODE = #{LA_CODE}
+										and SMEM_NO = #{SMEM_NO})
+			and ST_YEAR = #{ST_YEAR}
+			and ST_SEMESTER = #{ST_SEMESTER}
+	</delete>
+
+
+</mapper>

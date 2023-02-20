@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.VolunteerMapper">
+
+<!-- 	학생/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+
+	<select id="selectOutList" parameterType="String" resultType="VolunteerOutVO">
+		select * from volunteer_out where smem_no = #{id} order by volo_regidate desc
+	</select>
+	
+	<select id="selectMyTime" parameterType="String" resultType="Integer">
+		select sum(volo_time) from volunteer_out where smem_no = #{id} and volo_state = 1
+	</select>
+	
+	<select id="selectMyInTime" parameterType="String" resultType="Integer">
+		select sum(volh_time) from volunteer_his where smem_no = #{id} 
+	</select>
+	
+	<insert id="insertOutVol" parameterType="VolunteerOutVO" useGeneratedKeys="true">
+		insert into volunteer_out (
+		volo_code, smem_no, volo_start, volo_end, volo_time, 
+		volo_company, volo_content, volo_state, volo_semester, volo_year, volo_regidate
+		) 
+		values(
+		seq_volo_code.nextval, #{smem_no} , #{volo_start}, #{volo_end}, #{volo_time},
+		#{volo_company}, #{volo_content} ,0 ,1 ,2023, sysdate
+		) 
+		<selectKey keyProperty="volo_code" keyColumn="volo_code" resultType="String" order="AFTER">
+			select seq_volo_code.currval from dual
+		</selectKey>
+	</insert>
+	
+	<insert id="insertFiles" parameterType="VolunteerFileVO" >
+		
+		insert into volunteer_file (volfile_code, file_name, file_originnm, file_path, volo_code) 
+						    values (seq_volfilecode.nextval, #{file_name},#{file_originnm},#{file_path},#{volo_code})
+	</insert>
+	
+	<delete id="deleteFile" parameterType="String">
+		delete from volunteer_file where volo_code = #{volo_code}
+	</delete>
+
+	<delete id="deleteOutRegister" parameterType="String">
+		delete from volunteer_out where volo_code = #{volo_code}
+	</delete>	
+	
+	
+	<select id="selectVolVideoList" resultType="VolunteerListVO" parameterType="String">
+		select a.*,
+     	 (select smem_no from volunteer_his b where a.voll_code = b.voll_code and b.smem_no = #{smem_no}) as smem_no 
+		  from volunteer_list a
+	</select>
+	
+	<select id="selectOneVideo" parameterType="String" resultType="VolunteerListVO">
+		select * from volunteer_list where voll_code = #{voll_code}
+	</select>
+	
+	<select id="selectQuizList" parameterType="String" resultType="VolunteerQuizVO" >
+		select * from volunteer_quiz where voll_code = #{voll_code}
+	</select>
+	
+	<insert id="insertVolTime" parameterType="String" >
+		insert into volunteer_his (volh_code, smem_no, volh_date, volh_semester, volh_year, voll_code, volh_time) 
+                   values (seq_volh_code.nextval, #{smem_no}, sysdate, 1, 2023, #{voll_code}, #{volh_time}) 
+	</insert>
+	
+
+
+
+
+<!-- 	관리자/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	
+	<select id="selectAllRegisterList" resultType="java.util.Map">
+		select a.* ,
+		       b.stu_dep,
+		       b.stu_schyear,
+		       c.mem_name,
+		       c.mem_tel
+		  from volunteer_out a, student b, member c
+		 where a.smem_no = b.smem_no
+		   and b.smem_no = c.mem_no
+		 order by a.volo_state
+	</select>
+	
+	<select id="selectDetail" parameterType="String" resultType="java.util.Map">
+		select a.* ,
+		       b.stu_dep,
+		       b.stu_schyear,
+		       c.mem_name,
+		       c.mem_tel
+		  from volunteer_out a, student b, member c
+		 where a.smem_no = b.smem_no
+		   and b.smem_no = c.mem_no
+		   and a.volo_code = #{volo_code}
+	</select>
+	
+	<update id="updateVolState" parameterType="String">
+		update volunteer_out set volo_state = 1,volo_date = sysdate where volo_code = #{volo_code}
+	</update>
+	
+	<update id="updateVolDenied" parameterType="String">
+		update volunteer_out set volo_state = 2, volo_reject = #{volo_reject}
+						   where volo_code = #{volo_code}
+	</update>
+	
+	<select id="selectFileList" parameterType="String" resultType="VolunteerFileVO">
+		select * from volunteer_file where volo_code = #{volo_code}
+	</select>
+	
+
+</mapper>
+
+
+
+
+
+

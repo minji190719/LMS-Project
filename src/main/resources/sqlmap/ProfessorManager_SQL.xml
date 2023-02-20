@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.ProfessorManagerMapper">
+
+<resultMap type="java.util.Map" id="professorList">
+	 <result property="mem_photonm" column="MEM_PHOTONM" jdbcType="CLOB" javaType="java.lang.String"/>
+</resultMap>
+
+<sql id="position">
+	<if test="professorPosition != null and professorPosition != ''">
+		AND A.POSITION=#{professorPosition}
+	</if>
+</sql>
+
+<sql id="department">
+	<if test="professorDepartment != null and professorDepartment != ''">
+		AND B.DEP_NAME=#{professorDepartment}
+	</if>
+</sql>
+
+<sql id="professoNm">
+	<if test="professorName != null and professorName != ''">
+		AND E.MEM_NAME LIKE '%'||#{professorName}||'%'
+	</if>
+</sql>
+
+<select id="getProfessorList" resultMap="professorList">
+	SELECT E.*, D.DEP_NAME, D.PMEM_NO, D.JOIN_DATE, D.LEAVE_DATE, D.POSITION, D.ROOMNUM, D.COL_NAME
+		FROM    (SELECT * 
+		           FROM PROFESSOR A, DEPARTMENT B, COLLEGE C
+		          WHERE A.DEP_CODE=B.DEP_CODE
+		          AND B.COL_CODE=C.COL_CODE
+	     		<include refid="position"/>         
+	            <include refid="department"/>) D, MEMBER E
+		WHERE D.PMEM_NO=E.MEM_NO
+	    <include refid="professoNm"/>
+		ORDER BY D.JOIN_DATE DESC
+</select>
+
+<resultMap type="java.util.Map" id="professorDetail">
+	 <result property="mem_photonm" column="MEM_PHOTONM" jdbcType="CLOB" javaType="java.lang.String"/>
+</resultMap>
+
+<select id="getProfessorDetail" parameterType="string" resultMap="professorDetail">
+	SELECT E.*, D.DEP_NAME, D.PMEM_NO, D.JOIN_DATE, D.LEAVE_DATE, D.POSITION, D.ROOMNUM, D.COL_NAME
+	FROM    (SELECT * 
+	           FROM PROFESSOR A, DEPARTMENT B, COLLEGE C
+	          WHERE PMEM_NO=#{mem_no}
+	          AND A.DEP_CODE=B.DEP_CODE
+	          AND B.COL_CODE=C.COL_CODE) D, MEMBER E
+	WHERE D.PMEM_NO=E.MEM_NO
+</select>
+
+<update id="positionChange" parameterType="string">
+	UPDATE PROFESSOR
+	SET POSITION = #{objposition}
+	WHERE PMEM_NO = #{objmem_no}
+</update>
+
+
+</mapper>

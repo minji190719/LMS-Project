@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.LicenseEnrollMapper">
+
+	<select id="licenseEnrollList" parameterType="string" resultType="org.hdcd.vo.LicenseEnrollVO">
+		SELECT * 
+		  FROM  LICENSE_ENROLL
+		  WHERE SMEM_NO = #{userId}
+		  ORDER BY TO_NUMBER(LICEN_CODE) DESC
+	</select>
+	
+	<insert id="licenseEnrollApply">
+		INSERT INTO LICENSE_ENROLL VALUES(
+		    SEQ_LICEN_CODE.NEXTVAL, #{licenseEnrollVO.smem_no}, #{licenseEnrollVO.licen_name}, #{licenseEnrollVO.licen_company}, #{licenseEnrollVO.licen_date}, #{licenseEnrollVO.licen_num}, 0, #{licenseEnrollVO.licen_score}, #{licenseEnrollVO.licen_kind}, NULL, #{savePath}
+		)
+	</insert>
+	
+	<update id="licenseEnrollReject" parameterType="string">
+		DELETE LICENSE_ENROLL
+		WHERE LICEN_CODE = #{licen_code}
+	</update>
+	
+</mapper>

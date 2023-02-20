@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.NoticeMapper">
+
+	<resultMap type="NoticeVO" id="noticeMap">
+		<id property="notice_no" column="NOTICE_NO" />
+		<result property="notice_no" column="NOTICE_NO"/>
+		<result property="mmem_no" column="MMEM_NO"/>
+		<result property="notice_title" column="NOTICE_TITLE"/>
+		<result property="notice_content" column="NOTICE_CONTENT"/>
+		<result property="notice_date" column="NOTICE_DATE"/>
+		<result property="notice_count" column="NOTICE_COUNT"/>
+		<result property="notice_category" column="NOTICE_CATEGORY"/>
+		<collection property="noticeFileList" resultMap="noticeFileMap"/>
+	</resultMap>
+	
+	<resultMap type="NoticeFileVO" id="noticeFileMap">
+<!-- 		<id property="ntcfile_code" column="NTCFILE_CODE" /> -->
+<!-- 		<result property="ntcfile_code" column="NTCFILE_CODE"/> -->
+		<result property="file_name" column="FILE_NAME"/>
+<!-- 		<result property="file_path" column="FILE_PATH"/> -->
+<!-- 		<result property="notice_no" column="NOTICE_NO"/> -->
+<!-- 		<result property="file_originnm" column="FILE_ORIGINNM"/> -->
+<!-- 		<result property="file_size" column="FILE_SIZE"/> -->
+<!-- 		<result property="file_type" column="FILE_TYPE"/> -->
+	</resultMap>
+
+	<select id = "selectAllList" resultType = "NoticeVO">
+		select * from notice order by notice_date desc
+	</select>
+	
+	<select id="noticeFive" resultType = "NoticeVO">
+		select * from (select * from notice order by notice_date desc) where <![CDATA[rownum <=6]]>
+	</select>
+	
+	 <insert id = "insertNotice" parameterType = "NoticeVO" useGeneratedKeys="true">
+		insert into notice(notice_no, mmem_no, notice_title, notice_content, notice_date, notice_count,notice_category) 
+		values(seq_notice_no.nextval, #{mmem_no}, #{notice_title}, #{notice_content}, sysdate, 0, #{notice_category})
+		<selectKey keyProperty="notice_no" keyColumn="notice_no" resultType="String" order="AFTER">
+			select seq_notice_no.currval from dual
+		</selectKey>
+	</insert>
+
+	<insert id="insertFiles" parameterType="NoticeFileVO" >
+		insert into notice_file values (seq_ntcfilecode.nextval, #{file_name},#{file_path},#{notice_no}, #{file_originnm},#{file_size},#{file_type})
+	</insert>
+
+	<delete id="deleteNotice" parameterType = "int">
+	delete from notice where notice_no = #{notice_no}
+	
+	</delete>
+	
+	<select id="getNotice" parameterType="int" resultMap="noticeMap">
+		select n.*, nf.file_name
+		from notice n left outer join notice_file nf on(n.notice_no = nf.notice_no)
+		where n.notice_no = #{no}
+	</select>
+	
+	<update id="modifyNotice" parameterType = "NoticeVO">
+		update notice set notice_title = #{notice_title}, notice_content = #{notice_content} where notice_no = #{notice_no}
+	</update>
+	
+	<update id="modifyNoticeFile" parameterType = "NoticeFileVO">
+		update notice_file set file_name = #{file_name}, file_path = #{file_path}, file_originnm = #{file_originnm}, file_size = #{file_size}, file_type = #{file_type} where notice_no = #{notice_no}
+	</update>
+	
+	<update id="incrementHit" parameterType="int">
+		update notice
+		set
+			notice_count = notice_count + 1
+		where notice_no = #{no}
+	</update>
+	
+	
+	<select id="noticeView" parameterType = "int" resultType = "NoticeVO">
+		select * from notice where notice_no = #{no}
+	</select>
+	<select id="nofileList" parameterType = "int" resultType = "NoticeFileVO">
+		select * from notice_file where notice_no = #{no}
+	</select>
+	
+	<select id="selectCategory" parameterType = "String" resultType = "NoticeVO">
+		select * from notice where notice_category = #{category} order by notice_date desc
+	</select>
+</mapper>

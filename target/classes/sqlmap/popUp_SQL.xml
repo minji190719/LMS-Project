@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.PopUpMapper">
+	<select id="popUpOn" resultType="org.hdcd.vo.PopupVO">
+		SELECT * 
+		  FROM POPUP
+	</select>
+	
+	<sql id="change">
+		<if test="popNum == 1">
+			 SURV_REJECT = 1
+		</if>
+		<if test="popNum == 2">
+			 POPUP_REJECT = 1
+		</if>
+	</sql>
+	
+	<update id="popupSurveyChange" parameterType="string">
+		UPDATE MEMBER
+		SET <include refid="change"/>
+		WHERE MEM_NO = #{userId}
+	</update>
+	
+	<select id="popupSurveyState" parameterType="string" resultType="org.hdcd.vo.MemberVO">
+		SELECT POPUP_REJECT, SURV_REJECT
+		FROM MEMBER
+		WHERE MEM_NO = #{userId}
+	</select>
+	
+	<insert id="popupSurveySubmit">
+		INSERT INTO POPUP_SURVEY VALUES(
+	 	   SEQ_SURV_CODE.NEXTVAL, #{userId}, #{popupSurveyVO.surv_answer1}, #{popupSurveyVO.surv_answer2}, #{popupSurveyVO.surv_answer3}, 0
+		)
+	</insert>
+	
+</mapper>

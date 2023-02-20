@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<!-- tiles 설정 -->
+<tiles-definitions>
+<!-- 	main template 설정 -->
+	<definition name="mainTemplate" template="/WEB-INF/views/mainTemplate.jsp">
+		<put-attribute name="preloader" value="/WEB-INF/views/tiles/preloader.jsp"/>
+		<put-attribute name="navHeader" value="/WEB-INF/views/tiles/navHeader.jsp"/>
+		<put-attribute name="header" value="/WEB-INF/views/tiles/header.jsp"/>
+		<put-attribute name="sidebar" value="/WEB-INF/views/tiles/sidebar.jsp"/>
+		<put-attribute name="quickSidebar" value="/WEB-INF/views/tiles/quickSidebar.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/footer.jsp"/>
+	</definition>
+
+
+<!-- 
+	<definition name="errorTemplate" template="/WEB-INF/views/errorTemplate.jsp">
+		<put-attribute name="pageError400" value="/WEB-INF/views/common/pageError400.jsp"/>
+		<put-attribute name="pageError403" value="/WEB-INF/views/common/pageError403.jsp"/>
+		<put-attribute name="pageError404" value="/WEB-INF/views/common/pageError404.jsp"/>
+		<put-attribute name="pageError500" value="/WEB-INF/views/common/pageError500.jsp"/>
+		<put-attribute name="pageError503" value="/WEB-INF/views/common/pageError503.jsp"/>
+	</definition>
+ -->	
+	<definition name="main/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/common/{1}.jsp"/>
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/manager/{1}.jsp"/> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/professor/{1}.jsp"/> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp"/> -->
+	</definition>	
+	<definition name="student/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/student/{1}.jsp"/>
+	</definition>	
+	<definition name="professor/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/professor/{1}.jsp"/>
+	</definition>	
+	<definition name="manager/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/manager/{1}.jsp"/>
+	</definition>	
+<!-- 	<definition name="error/*" extends="errorTemplate"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/common/pageError{1}.jsp"/> -->
+<!-- 	</definition>	 -->
+
+	<definition name="enroll/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/manager/enroll/{1}.jsp"/>
+	</definition>
+
+	<definition name="member/*/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp"/>
+	</definition>
+	
+	<definition name="professor/*/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/professor/{1}/{2}.jsp"/>
+	</definition>
+	
+	<definition name="common/*/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/common/{1}/{2}.jsp"/>
+	</definition>
+	
+	<definition name="student/*/*" extends="mainTemplate">
+		<put-attribute name="content" value="/WEB-INF/views/student/{1}/{2}.jsp"/>
+	</definition>
+	
+	
+	
+</tiles-definitions>

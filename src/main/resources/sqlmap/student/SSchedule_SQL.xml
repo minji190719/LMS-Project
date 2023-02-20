@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.SScheduleMapper">
+
+	<select id="getMyTimeTable" parameterType="map" resultType="map">
+		select * from (select * from (select * from stu_timetable 
+		where smem_no = #{smem_no}
+		and st_year = #{year} 
+		and st_semester = #{semester}) a
+		inner join LECTURE b
+		on (a.lec_code = b.lec_code)) a, LEC_OPEN_LIST b
+		where a.LOL_CODE = b.LOL_CODE
+	</select>
+	
+	<select id="getYS" parameterType="string" resultType="map">
+		select distinct st_year, st_semester from stu_timetable
+				where smem_no = #{userId}
+				order by st_year
+	</select>
+
+	<select id="getMyTimeTableAll" parameterType="string" resultType="map">
+		select * from stu_timetable 
+		where smem_no = #{userId}
+		order by st_year,st_semester
+	</select>
+
+</mapper>

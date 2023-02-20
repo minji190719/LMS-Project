@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.CounselMapper">
+<!-- 학생파트 -->
+
+	<select id="counselApplyDetail" parameterType="string" resultType="org.hdcd.vo.CounselVO">
+		SELECT A.*, B.MEM_NAME    
+		FROM COUNSEL A, MEMBER B 
+		WHERE A.CNSL_CODE=#{cnsl_code}	
+		AND PMEM_NO=B.MEM_NO
+	</select>
+
+	<select id="counselApplyList" resultType="org.hdcd.vo.CounselApplyVO" parameterType="string">
+		SELECT * FROM COUNSEL_APPLY
+		 WHERE SMEM_NO = #{userId}
+		 ORDER BY CNSLA_DATE DESC
+	</select>
+
+	<select id="getCounselList" resultType="org.hdcd.vo.CounselVO">
+		 SELECT * 
+		   FROM COUNSEL
+		  WHERE CNSL_STATE = 0
+		  ORDER BY CNSL_DATE
+	</select>
+	
+	<select id="counselNameList" resultType="org.hdcd.vo.MemberVO" parameterType="string">
+		SELECT DISTINCT A.MEM_NO, A.MEM_NAME 
+		FROM MEMBER A, COUNSEL B 
+		WHERE A.MEM_NO=B.PMEM_NO 
+		  AND B.PMEM_NO = #{pmem_no}
+	</select>
+	
+	<insert id="apply" parameterType="org.hdcd.vo.CounselApplyVO">
+		INSERT INTO COUNSEL_APPLY(
+		    CNSLA_CODE, SMEM_NO, CNSL_CODE, CNSLA_DATE, CNSL_DATE, CNSLA_TIME, CNSLA_SUB, CNSLA_STATE, 
+		    CNSLA_TYPE, CNSLA_CONTENT, CNSLA_REJECT
+		)VALUES(
+		    SEQ_CNSLA_CODE.nextval, #{smem_no}, #{cnsl_code} , SYSDATE, #{cnsl_date}, #{cnsla_time}, #{cnsla_sub}, 0, #{cnsla_type}, #{cnsla_content}, null
+		) 
+	</insert>
+	
+	<select id="proffsorNameList" resultType="org.hdcd.vo.MemberVO" parameterType="string">
+		SELECT C.MEM_NAME
+		FROM COUNSEL_APPLY A, COUNSEL B, MEMBER C
+		WHERE A.CNSL_CODE=B.CNSL_CODE
+		  AND B.PMEM_NO=C.MEM_NO
+		  AND A.CNSL_CODE=#{cnsl_code}
+	</select>
+	
+	<update id="updateState" parameterType="string">
+		UPDATE COUNSEL
+		SET CNSL_STATE = 1
+		WHERE CNSL_CODE = #{cnsl_code}
+	</update>
+	
+	<delete id="studentCounselReturn" parameterType="org.hdcd.vo.CounselApplyVO">
+		DELETE COUNSEL_APPLY
+		 WHERE CNSLA_CODE = #{cnsla_code}
+	</delete>
+	
+	<!-- 학생 상담신청 검색 기능  -->
+	
+	<sql id="searchWordName">
+		<if test="searchName != '' and searchName != null">
+			AND B.MEM_NAME LIKE '%'||#{searchName}||'%'
+		</if>
+	</sql>
+	
+	<sql id="searchWordDate">
+		<if test="searchDate != '' and searchDate != null">
+			AND CNSL_DATE = #{searchDate}
+		</if>
+	</sql>
+	
+	<sql id="searchWordSelect">
+		<if test="searchSelect != '' and searchSelect != null">
+			AND CNSL_KIND = #{searchSelect}
+		</if>
+	</sql>
+	
+	<select id="getSearchCounselList" parameterType="string" resultType="org.hdcd.vo.CounselVO">
+		SELECT B.MEM_NAME, A.* 
+		  FROM (SELECT * 
+		          FROM COUNSEL
+		         WHERE 1=1
+		           <include refid="searchWordDate"/>
+		           <include refid="searchWordSelect"/>
+		           AND CNSL_STATE = 0)A, MEMBER B
+		 WHERE A.PMEM_NO=B.MEM_NO
+		   <include refid="searchWordName"/>
+		 ORDER BY A.CNSL_DATE DESC
+	</select>
+	
+	<!-- 학생 상담신청 검색 기능  끝-->
+	
+	<!-- 학생이 상담신청한 목록 검색 -->
+	
+	<sql id="searchWordProfessorName">
+		<if test="searchProfessorName != '' and searchProfessorName != null">
+			AND D.MEM_NAME LIKE '%'||#{searchProfessorName}||'%'
+		</if>
+	</sql>
+	
+	<sql id="searchWordState">
+		<if test="searchState != '' and searchState != null">
+			AND CNSLA_STATE = #{searchState}
+		</if>
+	</sql>
+	
+	<sql id="searchWordType">
+		<if test="searchType != '' and searchType != null">
+			AND CNSLA_TYPE = #{searchType}
+		</if>
+	</sql>
+	
+	<select id="counselApplyListSearch" parameterType="string" resultType="org.hdcd.vo.CounselApplyVO">
+		SELECT D.MEM_NAME, C.CNSLA_CODE, C.SMEM_NO, C.CNSL_CODE, C.CNSLA_DATE, C.CNSL_DATE, C.CNSLA_TIME,
+        C.CNSLA_SUB, C.CNSLA_STATE, C.CNSLA_TYPE, C.CNSLA_CONTENT, C.CNSLA_REJECT
+		  FROM (SELECT B.PMEM_NO, A.* 
+		          FROM (SELECT * 
+		                  FROM COUNSEL_APPLY
+		                 WHERE 1=1
+		                   <include refid="searchWordState"/>
+		                   <include refid="searchWordType"/>
+		                   AND SMEM_NO = #{userId})A, COUNSEL B
+		         WHERE A.CNSL_CODE=B.CNSL_CODE) C, MEMBER D
+		 WHERE C.PMEM_NO=D.MEM_NO
+		   <include refid="searchWordProfessorName"/>
+		 ORDER BY C.CNSLA_DATE DESC
+	</select>
+	<!-- 학생이 상담신청한 목록 검색 끝-->
+	
+<!-- 교수파트 -->
+	<select id="professorApplyCounsel" parameterType="string" resultType="org.hdcd.vo.CounselApplyVO">
+		SELECT B.*
+          FROM (SELECT *
+                  FROM COUNSEL
+                 WHERE PMEM_NO = #{professorSessionId}) A, COUNSEL_APPLY B
+         WHERE A.CNSL_CODE=B.CNSL_CODE
+         ORDER BY B.CNSLA_DATE DESC 
+	</select>
+	
+	<select id="getStudentName" resultType="org.hdcd.vo.MemberVO" parameterType="string">
+		 SELECT *
+		 FROM MEMBER
+		 WHERE MEM_NO = #{smem_no}
+	</select>
+	
+	<update id="counselReturn" parameterType="org.hdcd.vo.CounselApplyVO">
+		UPDATE COUNSEL_APPLY
+		   SET CNSLA_REJECT = #{cnsla_reject},
+		        CNSLA_STATE = 2
+		 WHERE CNSLA_CODE = #{cnsla_code}
+	</update>
+	
+	<update id="counselValidation" parameterType="org.hdcd.vo.CounselApplyVO">
+		UPDATE COUNSEL_APPLY
+		   SET CNSLA_STATE = 1
+		 WHERE CNSLA_CODE = #{cnsla_code}
+	</update>
+	
+	<update id="counselValidationTo" parameterType="org.hdcd.vo.CounselApplyVO">
+		UPDATE COUNSEL
+		   SET CNSL_STATE = 1
+		 WHERE CNSL_CODE = (SELECT CNSL_CODE
+		                      FROM COUNSEL_APPLY
+		                     WHERE CNSLA_CODE = #{cnsla_code})
+	</update>
+		
+</mapper>

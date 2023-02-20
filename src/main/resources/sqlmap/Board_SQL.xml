@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.BoardMapper">
+	<resultMap type="BoardVO" id="boardMap">
+		<id property="board_no" column="BOARD_NO" />
+		<result property="board_no" column="BOARD_NO"/>
+		<result property="pmem_no" column="PMEM_NO"/>
+		<result property="dep_code" column = "DEP_CODE"/>
+		<result property="board_title" column="BOARD_TITLE"/>
+		<result property="board_content" column="BOARD_CONTENT"/>
+		<result property="board_date" column="BOARD_DATE"/>
+		<result property="board_count" column="BOARD_COUNT"/>
+		<collection property="boardFileList" resultMap="boardFileMap"/>
+	</resultMap>
+	
+	<resultMap type="BoardFileVO" id="boardFileMap">
+<!-- 		<id property="ntcfile_code" column="NTCFILE_CODE" /> -->
+<!-- 		<result property="ntcfile_code" column="NTCFILE_CODE"/> -->
+		<result property="file_name" column="FILE_NAME"/>
+<!-- 		<result property="file_path" column="FILE_PATH"/> -->
+<!-- 		<result property="notice_no" column="NOTICE_NO"/> -->
+<!-- 		<result property="file_originnm" column="FILE_ORIGINNM"/> -->
+<!-- 		<result property="file_size" column="FILE_SIZE"/> -->
+<!-- 		<result property="file_type" column="FILE_TYPE"/> -->
+	</resultMap>
+	
+	<select id = "selectAllList" resultType = "BoardVO" parameterType = "String">
+		select * from board where dep_code = #{dep_code} order by board_date desc
+		
+	</select>
+
+	 <insert id = "insertBoard" parameterType = "BoardVO" useGeneratedKeys="true">
+		insert into board(board_no, pmem_no, dep_code,board_title, board_content, board_date, board_count) 
+		values(seq_board_no.nextval, #{pmem_no},
+		(select dep_code from professor where pmem_no = #{pmem_no}),
+		#{board_title}, #{board_content}, sysdate, 0)
+		<selectKey keyProperty="board_no" keyColumn="board_no" resultType="String" order="AFTER">
+			select seq_board_no.currval from dual
+		</selectKey>
+	</insert>
+
+	<insert id="insertBFiles" parameterType="BoardFileVO" >
+		insert into board_file values (seq_brdfilecode.nextval, #{file_name},#{file_path},#{board_no}, #{file_originnm},#{file_size},#{file_type})
+	</insert>
+	
+	<select id="getBoardNo" parameterType="int" resultMap="boardMap">
+		select b.*, bf.file_name
+		from board b left outer join board_file bf on(b.board_no = bf.board_no)
+		where b.board_no = #{no}
+	</select>
+
+	<update id="modifyBoard" parameterType = "BoardVO">
+		update board set board_title = #{board_title}, board_content = #{board_content} where board_no = #{board_no}
+	</update>
+	
+	<update id="modifyBoardFile" parameterType = "BoardFileVO">
+		update board_file set file_name = #{file_name}, file_path = #{file_path}, file_originnm = #{file_originnm}, file_size = #{file_size}, file_type = #{file_type} where board_no = #{board_no}
+	</update>
+	
+	<update id="incrementHit" parameterType="int">
+		update board
+		set
+			board_count = board_count + 1
+		where board_no = #{no}
+	</update>
+	
+	<delete id="deleteBoard" parameterType = "int">
+	delete from board where board_no = #{board_no}
+	</delete>
+	
+	<select id = "getBoard_No" parameterType = "int" resultType = "map">
+		select a.board_no, a.pmem_no, a.dep_code, a.board_title, a.board_count, a.board_content, a.board_date, b.dep_name from board a, department b 
+		where board_no = #{no} and a.dep_code = b.dep_code 
+	</select>
+	
+	
+	<select id="boardView" parameterType = "int" resultType = "BoardVO">
+		select * from board where board_no = #{no}
+	</select>
+	<select id="bofileList" parameterType = "int" resultType = "BoardFileVO">
+		select * from board_file where board_no = #{no}
+	</select>
+
+	<select id = "Allinfo" resultType="map" parameterType = "String">
+		select * from board a, department b where a.dep_code = #{dep_code} and a.dep_code = b.dep_code
+	</select>
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

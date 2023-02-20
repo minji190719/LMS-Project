@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.CommunityMapper">
+	
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■알람■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<select id="getCommuUser" parameterType="string" resultType="string">
+		select smem_no from community
+		where cmnt_no = #{cmnt_no}
+	</select>
+	
+	
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■학생■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<!-- 좋아요가 많은 12개의 cmntList를 가져오는 메소드 -->
+	<select id="getCmntPopularList" resultType="CommunityVO">
+		<![CDATA[
+		select * 
+		from (
+				select
+						cmnt_no,
+						smem_no,
+						cmnt_title,
+						cmnt_content,
+						cmnt_date,
+						to_char(cmnt_date, 'yyyy-mm-dd'),
+						to_char(add_months(sysdate,-1),'yyyy-mm-dd') as criteria_date,
+						cmnt_count,
+						cmnt_like,
+						cmnt_anony,
+						cmnt_report,
+						cmnt_category,
+						cmnt_feeling
+				from community
+				where 1=1
+					  and to_char(cmnt_date, 'yyyy-mm-dd') >= to_char(add_months(sysdate,-1),'yyyy-mm-dd')
+					  and (cmnt_report not in ('DISPOSED') or cmnt_report is null)
+				order by cmnt_like desc , cmnt_count desc
+				) t
+		where rownum <= 12
+		]]>
+	</select>
+	
+	<!-- ▶[학생] 커뮤니티 글 작성 -->
+	<insert id="registerCmntPost" parameterType="CommunityVO">
+		<selectKey keyProperty="cmnt_no" resultType="string" order="BEFORE">
+			select seq_cmnt_no.nextval from dual
+		</selectKey>
+			insert into	
+				community(cmnt_no, smem_no, cmnt_title, cmnt_content, cmnt_date, cmnt_count, cmnt_like, cmnt_anony, cmnt_category, cmnt_feeling)
+			values
+				('CMNT'||#{cmnt_no}, #{smem_no}, #{cmnt_title}, #{cmnt_content}, sysdate, 0, 0, #{cmnt_anony}, #{cmnt_category}, #{cmnt_feeling})
+	</insert>
+	
+	<!-- [학생] 커뮤니티 글 작성 성공 후 첨부파일 추가 -->
+	<insert id="registerCmntPostFile" parameterType="CommunityFileVO">
+		insert into community_file(cmntf_code, cmnt_no, file_name, file_originnm, file_size, file_path, file_type)
+		values ('CMNTF'||seq_cmntf_code.nextval, #{cmnt_no}, #{file_name}, #{file_originnm}, #{file_size}, #{file_path}, #{file_type})
+	</insert>
+	
+	<!-- [학생] 커뮤니티 글 전체 리스트 -->
+	<select id="getCmntTotalList" resultType="CommunityVO" parameterType="map">
+		<!--
+		select *
+		from community
+		order by cmnt_date desc
+		 -->		 
+		select *
+		from
+		    (select ROW_NUMBER() OVER(ORDER BY community.cmnt_no desc) as num,
+		            community.*
+		       from community order by cmnt_no desc) 
+		where num between #{startNum} and #{endNum}
+	</select>
+	
+	<!-- [학생] 커뮤니티 개별 게시글별 댓글 개수 -->
+	<select id="countReply" parameterType="string" resultType="int">
+		select count(*) from reply where cmnt_no = #{cmnt_no}
+	</select>
+	
+	<!-- [학생] 커뮤니티 번호에 해당하는 파일 하나 가져오기  -->
+	<select id="getCmntFileTotalList" resultType="CommunityFileVO" parameterType="string">
+		select *
+		from community_file
+		where cmnt_no = #{cmnt_no} and rownum=1
+	</select> 
+	
+	<!-- [학생] 커뮤니티 게시글 업데이트 -->
+	<update id="updateCmnt" parameterType="CommunityVO">
+		update community set cmnt_title = #{cmnt_title}, cmnt_content = #{cmnt_content},
+		                     cmnt_date = sysdate, cmnt_category = #{cmnt_category}, cmnt_feeling = #{cmnt_feeling}
+		where cmnt_no = #{cmnt_no}
+	</update>
+	
+	<insert id="updateCmntPostFile" parameterType="CommunityFileVO">
+		insert into community_file(cmntf_code, cmnt_no, file_name, file_originnm, file_size, file_path, file_type)
+		values ('CMNTF'||seq_cmntf_code.nextval, #{cmnt_no}, #{file_name}, #{file_originnm}, #{file_size}, #{file_path}, #{file_type})
+	</insert>
+	
+	<!-- [학생] 개별 글 조회 -->
+	
+	<update id="plusCmntHits" parameterType="CommunityVO">
+		update community set cmnt_count = cmnt_count + 1 where cmnt_no = #{cmnt_no} and smem_no != #{smem_no} 
+	</update>
+	
+	<select id="getCmnt" parameterType="string" resultType="CommunityVO">
+		select * from community where cmnt_no = #{cmnt_no}
+	</select>
+	
+	<select id="getCmntFile" parameterType="string" resultType="CommunityFileVO">
+		select * from community_file where cmnt_no = #{cmnt_no} order by cmntf_code asc
+	</select>
+	
+	<select id="getCmntReply" parameterType="string" resultType="ReplyVO">
+		select * from reply where cmnt_no = #{cmnt_no} order by reply_no asc
+	</select>
+	
+	<select id="checkCmntLike" parameterType="CommunityLikeVO" resultType="String">
+		select like_code from community_like where cmnt_no = #{cmnt_no} and smem_no = #{smem_no}	
+	</select>
+	
+	<!-- [학생] 현재 게시글 기준 이전 게시글 조회 -->
+	<select id="getPrePost" parameterType="string" resultType="string">
+		select cmnt_no
+		from( 
+		    select cmnt_no as cm_no, 
+		        lag(cmnt_no, 1) over (order by cmnt_no desc) as cmnt_no
+		    from community
+		    )
+		where cm_no = #{cmnt_no} 
+	</select>
+	
+	<!-- [학생] 현재 게시글 기준 다음 게시글 조회 -->
+	<select id="getNextPost" parameterType="string" resultType="string">
+		select cmnt_no
+		from( 
+		    select cmnt_no as cm_no, 
+		        lead(cmnt_no, 1) over (order by cmnt_no desc) as cmnt_no
+		    from community
+		    )
+		where cm_no = #{cmnt_no} 
+	</select>
+	
+	
+	<!-- [학생] 댓글 등록 -->
+	<insert id="registerReply" parameterType="ReplyVO">
+		<selectKey keyProperty="reply_no" resultType="string" order="BEFORE">
+			select seq_reply_no.nextval from dual
+		</selectKey>
+		insert into reply(reply_no, smem_no, cmnt_no, reply_content, reply_anony, reply_date)
+		values('REPLY'||#{reply_no}, #{smem_no}, #{cmnt_no}, #{reply_content}, #{reply_anony}, sysdate)
+	</insert> 
+	
+	<!-- [학생] 댓글 삭제 -->
+	<delete id="deleteReplyOne" parameterType="string">
+		delete from reply where reply_no = #{reply_no}
+	</delete>
+	
+	<!-- [학생] 글 삭제를 위한 단계별 삭제(커뮤니티 파일, 댓글, 커뮤니티 글 순서대로 삭제 -->
+	<delete id="deleteCmntFile" parameterType="string">
+		delete from community_file where cmnt_no = #{cmnt_no}
+	</delete>
+
+	<delete id="deleteCmntSavedFile" parameterType="map">
+		delete from community_file where cmnt_no = #{cmnt_no} and cmntf_code not in
+		<foreach collection="cmntf_codes" item="arr" open="(" close=")" separator=",">		
+		#{arr}
+		</foreach>
+	</delete>
+
+	<delete id="deleteReply" parameterType="string">
+		delete from reply where cmnt_no = #{cmnt_no}
+	</delete>
+	
+	<delete id="deleteCmntLikeByCmntNo" parameterType="string">
+		delete from community_like where cmnt_no = #{cmnt_no}
+	</delete>
+	
+	<delete id="deleteCmnt" parameterType="string">
+		delete from community where cmnt_no = #{cmnt_no}
+	</delete>
+	
+	<!-- [학생] 게시글 신고 -->
+	<update id="reportPost">
+		update community set cmnt_report = #{cmnt_report} where cmnt_no = #{cmnt_no}
+	</update>
+	
+	<!-- [학생] 키워드 검색(제목/내용/제목+내용) -->
+	<select id="searchCmnt" parameterType="map" resultType="CommunityVO">
+		select * 
+		from community
+		<if test="searchType eq 'total'">
+			where cmnt_title like '%'||#{keyword}||'%' or cmnt_content like '%'||#{keyword}||'%'
+		</if>
+		<if test="searchType eq 'content'">
+			where cmnt_content like '%'||#{keyword}||'%'
+		</if>
+		<if test="searchType eq 'title'">
+			where cmnt_title like '%'||#{keyword}||'%'
+		</if>
+		order by cmnt_no desc
+	</select>
+	
+	<!-- [학생] 좋아요 버튼 누르기 -->
+	<insert id="insertCmntLike" parameterType="CommunityLikeVO">
+		<selectKey keyProperty="like_code" resultType="string" order="BEFORE">
+			select seq_like_code.nextval from dual
+		</selectKey>
+			insert into	
+				community_like(like_code, cmnt_no, smem_no)
+			values
+				('LIKE'||#{like_code}, #{cmnt_no}, #{smem_no})
+	</insert>
+	
+	<update id="plusCmntLike" parameterType="string">
+		update community set cmnt_like = cmnt_like + 1
+		where cmnt_no = #{cmnt_no}
+	</update>
+	
+	<!-- [학생] 좋아요 삭제하기 -->
+	<delete id="deleteCmntLike" parameterType="string">
+		delete from community_like where like_code = #{like_code}
+	</delete>
+	
+	<update id="minusCmntLike" parameterType="string">
+		update community set cmnt_like = cmnt_like - 1
+		where cmnt_no = #{cmnt_no}	
+	</update>
+	
+	<!-- [학생] 자신이 등록한 글 보기 -->
+	<select id="getMyPost" parameterType="string" resultType="CommunityVO">
+		select * from community where smem_no = #{smem_no} order by cmnt_date desc
+	</select>
+	
+	<!-- [학생] 자신이 등록한 댓글 보기 -->
+	<select id='getMyReply' parameterType="string" resultType="map">
+		select * from community c inner join reply r 
+		on r.cmnt_no = c.cmnt_no
+		where r.smem_no = #{smem_no}
+		order by r.reply_date desc
+	</select>
+	
+	<!-- [학생] 자신이 좋아요한 글 보기 -->
+	<select id="getMyLike" parameterType="string" resultType="CommunityVO">
+		select c.* from community c inner join community_like l
+		on l.cmnt_no = c.cmnt_no
+		where l.smem_no = #{smem_no}
+		order by c.cmnt_date desc
+	</select>
+	
+	<!-- [학생] 자신이 등록한 글의 개수 보기 -->
+	<select id="getMyPostCnt" parameterType="string" resultType="int">
+		select count(*) from community where smem_no = #{smem_no}
+	</select>
+	
+	<!-- [학생] 자신이 등록한 댓글의 개수 보기 -->
+	<select id="getMyReplyCnt" parameterType="string" resultType="int">
+		select count(*) from reply  
+		where smem_no = #{smem_no}
+	</select>
+	
+	<!-- [학생] 자신이 좋아요한 글의 개수 보기 -->
+	<select id="getMyLikeCnt" parameterType="string" resultType="int">
+		select count(*) from community_like
+		where smem_no = #{smem_no}
+	</select>
+	
+	<!-- [학생] 자신이 좋아요한 글 삭제하기 -->
+	<delete id="deleteCmntLikeByVO" parameterType="CommunityLikeVO">
+		delete from community_like where cmnt_no = #{cmnt_no} and smem_no = #{smem_no}
+	</delete>
+
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■관리자■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	
+	<!-- [학생] 신고가 접수된 게시글 목록 보기(처리 안 됨) -->
+	<select id="getUnhandledList" resultType="CommunityVO">
+		select *
+		from
+		    (select row_number() over(order by community.cmnt_no desc) as cmnt_content,
+		            community.cmnt_no,
+		            community.smem_no,
+		            community.cmnt_title,
+		            community.cmnt_date,
+		            community.cmnt_report
+		      from community
+		      where community.cmnt_report like'%/%'
+		      order by cmnt_no desc)
+	</select>
+	
+	<!-- [학생] 신고가 접수된 게시글 목록 보기(처리됨) -->
+	<select id="getDisposedList" resultType="CommunityVO">
+		select *
+		from
+		    (select row_number() over(order by community.cmnt_no desc) as cmnt_content,
+		            community.cmnt_no,
+		            community.smem_no,
+		            community.cmnt_title,
+		            community.cmnt_date,
+		            community.cmnt_report
+		      from community
+		      where community.cmnt_report like'%DISPOSED%'
+		      order by cmnt_no desc)
+	</select>
+	
+	<!-- [학생] 신고가 접수된 게시글 목록 보기(반려됨) -->
+	<select id="getReturnedList" resultType="CommunityVO">
+		select *
+		from
+		    (select row_number() over(order by community.cmnt_no desc) as cmnt_content,
+		            community.cmnt_no,
+		            community.smem_no,
+		            community.cmnt_title,
+		            community.cmnt_date,
+		            community.cmnt_report
+		      from community
+		      where community.cmnt_report like'%RETURN%'
+		      order by cmnt_no desc)
+	</select>
+	<!-- [학생] 신고 접수 게시글 처리하기-->
+	<update id="cmntDisposed" parameterType="string">
+		update community set cmnt_report = 'DISPOSED'
+		where cmnt_no = #{cmnt_no}
+	</update>
+	<!-- [학생] 신고 접수 게시글 반려하기-->
+	<update id="cmntReturned" parameterType="string">
+		update community set cmnt_report = 'RETURN'
+		where cmnt_no = #{cmnt_no}
+	</update>
+	
+	<!-- [학생] 신고가 접수된 게시글 (처리 안 됨) 개수-->
+	<select id="countUnhandled" resultType="int">
+		select count(*) from community where cmnt_report like'%/%'
+	</select>
+	
+	<!-- [학생] 신고가 접수된 게시글 (처리됨) 개수-->
+	<select id="countDisposed" resultType="int">
+		select count(*) from community where cmnt_report like'%DISPOSED%'
+	</select>
+	
+	<!-- [학생] 신고가 접수된 게시글 (반려) 개수-->
+	<select id="countReturned" resultType="int">
+		select count(*) from community where cmnt_report like'%RETURN%'
+	</select>
+	
+	
+</mapper>
+

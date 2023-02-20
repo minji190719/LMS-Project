@@ -1,0 +1,240 @@
+@charset "UTF-8";
+/*
+	0 - 600: 휴대폰
+	600 - 900: 작은 태블릿
+	900 - 1200: 큰 태블릿
+	1200 - 1800: 일반
+	1800+ : 빅 데스크톱
+	1em = 16px
+	작은 장치 규칙은 항상 큰 장치 규칙 아래에 써야 합니다
+	순서 고정 => 베이스 + 타이포그래피 >> 일반 레이아웃 + 그리드 >> 페이지 레이아웃 + 구성요소
+*/
+
+/*■ 변수 설정 */
+:root {
+	--custom-s : #304674; /*var(--custom-s); #011B54*/
+	--custom-p : #760023; /*var(--custom-p);*/
+	--custom-m : #191919; /*var(--custom-m);*/
+}
+
+/**/
+/*
+@font-face {
+    font-family: 'NanumSquareNeo-bRg';
+    src: url('/resources/fonts/NanumSquareNeo-bRg.woff') format('truetype');
+}
+
+body, h1, h2, h3, h4, h5, h6, p, span{
+	font-family: 'NanumSquareNeo-bRg' !important; 
+}
+*/
+/* 폰트 지정 */
+@font-face {
+    font-family: 'GmarketSansMedium';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'establishRetrosansOTF';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2112@1.0/establishRetrosansOTF.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: '양진체';
+    src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NanumSquareNeo-Variable';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/NanumSquareNeo-Variable.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+@font-face {
+    font-family: 'NanumGothic';
+    src: url('/resources/fonts/NanumGothic.woff') format('truetype');
+}
+
+@font-face {
+    font-family: 'NanumGothicBold';
+    src: url('/resources/fonts/NanumGothicBold.woff') format('truetype');
+}
+
+body, h1, h2, h3, h4, h5, h6, p, span{
+	font-family: 'NanumGothic' !important; 
+}
+
+h4{
+	 font-family: 'GmarketSansMedium' !important; 
+}
+
+/* 기본 색상 지정 */
+.custom-s{
+	color: var(--custom-s);
+}
+
+.custom-p{
+	color: var(--custom-p);
+}
+
+.custom-m{
+	color: var(--custom-m);
+}
+
+
+/*스크롤바 커스텀*/
+*::-webkit-scrollbar {
+   width: 10px;
+ }
+ *::-webkit-scrollbar-thumb {
+   background-color: white;
+   border-radius: 10px;
+   background-clip: padding-box;
+   border: 2px solid transparent;
+ }
+*::-webkit-scrollbar-track {
+   background-color:  #E9ECEF;
+   border-radius: 10px;
+   box-shadow: inset 0px 0px 5px white;
+ }
+ 
+ body::-webkit-scrollbar {
+   width: 10px;
+ }
+ body::-webkit-scrollbar-thumb {
+   border-radius: 10px;
+   background-clip: padding-box;
+   border: 2px solid transparent;
+ }
+ body::-webkit-scrollbar-track {
+   background-color:  grey;
+   border-radius: 10px;
+   box-shadow: inset 0px 0px 5px white;
+ }
+ 
+/* 기본 버튼 지정 */
+.custom-btn-s{
+	background-color: var(--custom-s) !important;
+	color: #FFFFFF !important;	
+}
+
+.custom-btn-p{
+	background-color: var(--custom-p) !important;
+	color: #FFFFFF !important;	
+}
+
+.custom-btn-m{
+	background-color: var(--custom-m) !important;
+	color: #FFFFFF !important;	
+}
+
+/* 테이블 관련 */
+.custom-theader-s{
+	/* background-color: #E9ECEF !important;*/
+	background-color: #E9ECEF !important;
+}
+
+.custom-theader-p{
+	background-color: #EBEBEB !important;
+}
+
+.custom-theader-m{
+	background-color: rgba(245, 245, 245, 0.493) !important;
+}
+
+.custom-table1 table, .custom-table1 thead {
+   display:block;
+   width:100%;
+}
+
+.custom-table1 th{
+	padding: 0px;
+}
+
+.custom-table1 table thead tr {
+   display:table;
+   table-layout:fixed;
+    width:100%;
+    padding: 0px;
+}
+
+.custom-table1 table thead tr {
+   display:table;
+    table-layout:fixed;
+    width:100%;
+}
+
+.custom-table1 table thead tr {
+   text-align: center;
+}
+
+.custom-table1 tbody { 
+   display: block;
+   overflow: auto;
+   overflow-x: hidden;
+}
+
+.custom-table1 tbody tr {
+   display: table;
+    table-layout: fixed;
+    width:100%;
+}
+
+.custom-table1 tr td {
+   text-align: center;
+}
+
+/* 우측 정렬 */
+.custom-right-array{
+	display: flex;
+	justify-content: flex-end;
+}
+
+/* border */
+.custom-border-s{
+	border : 1px solid var(--custom-s) !important;
+	color : var(--custom-s) !important;
+}
+.custom-border-p{
+	border : 1px solid var(--custom-p) !important;
+	color : var(--custom-p) !important;
+}
+
+.custom-border-m{
+	border : 1px solid var(--custom-m) !important;
+	color : var(--custom-m) !important;
+}
+
+/* font-weight : bold */
+.custom-bold{
+	font-weight: bold !important;
+}
+
+/* padding-right 100px; */
+.custom-pr100{
+	padding-right: 100px !important;
+}
+
+/* 로더 */
+.loader-container{
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  min-height: 100vh;}
+
+
+/* sweetalert 주체별 디자인 */
+/*■ page css파일 import */
+/* 사용 예: community css를 위해 css-page 폴더에 community.css를 생성하고
+            아래에 @import "./page/community.css"; 와 같이 작성하여 import 
+   ※ 우선 순위가 높은 것을 가장 상단에 두세요 */
+   
+/*@import "./page/community.css"*/

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.LoginMapper">
+
+	<resultMap type="MemberVO" id="memDetailMap">
+      <result property="mem_no" column="MEM_NO"/>
+      <result property="mem_pass" column="MEM_PASS"/>
+      <result property="mem_name" column="MEM_NAME"/>
+      <result property="mem_tel" column="MEM_TEL"/>
+      <result property="mem_sex" column="MEM_SEX"/>
+      <result property="mem_addr1" column="MEM_ADDR1"/>
+      <result property="mem_addr2" column="MEM_ADDR2"/>
+      <result property="mem_email" column="MEM_EMAIL"/>
+      <result property="mem_reg1" column="MEM_REG1"/>
+      <result property="mem_reg2" column="MEM_REG2"/>
+      <result property="mem_bank" column="MEM_BANK"/>
+      <result property="mem_depo" column="MEM_DEPO"/>
+      <result property="mem_banknum" column="MEM_BANKNUM"/>
+      <result property="mem_photonm" column="MEM_PHOTONM"/>
+      <result property="mem_postnum" column="MEM_POSTNUM"/>
+      <!-- 여러개의 권한 -->
+      <collection property="authList" resultMap="memAuthMap"></collection>
+   </resultMap>
+   
+   <resultMap type="MemberAuthVO" id="memAuthMap">
+      <result property="mem_no" column="MEM_NO"/>
+      <result property="mem_auth" column="MEM_AUTH"/>
+   </resultMap>
+	
+	<!-- 	로그인을 위한 조인쿼리 -->
+	<select id="selectAuth" parameterType="String" resultMap="memDetailMap">
+		select a.mem_no, a.mem_pass, a.mem_name, a.mem_tel, a.mem_sex, a.mem_addr1,
+			   a.mem_addr2, a.mem_email, a.mem_reg1, a.mem_reg2, a.mem_bank, a.mem_depo, 
+			   a.mem_banknum, a.mem_photonm, a.mem_postnum, b.mem_auth
+		  from member a , member_auth b
+		 where a.mem_no = b.mem_no
+		   and a.mem_no = #{username}
+	</select>
+
+	
+</mapper>

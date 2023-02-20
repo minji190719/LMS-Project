@@ -1,0 +1,137 @@
+@charset "UTF-8";
+/* schedule Calendar */
+.hnu_schedule {
+	font-size:0; 
+	margin:10px -8px;
+	border-bottom:1px solid #d4d4d7; 
+	padding-bottom:20px; 
+}
+.hnu_schedule .in-box {
+	display:inline-block; 
+	font-size:14px; 
+	vertical-align:top; 
+	width:100%; 
+	padding:0 8px; 
+}
+.hnu_schedule .in-box:nth-child(1) {display:none;  }
+.hnu_schedule .in-box .title-h5 {
+	margin-bottom:0.75em; 
+	background:#4c517c;
+	color:#fff; 
+	padding:10px 15px; 
+	font-size:1.200em; 
+	border-radius:8px 8px 0 8px; 
+	box-shadow:4px 4px 8px rgba(0, 0, 0, .12); 
+}
+.hnu_schedule .in-box .title-h5:after {
+	display:block;
+	content:"";
+	width:calc(100% - 120px);
+	height:0;
+	position:absolute;
+	right:0;
+	top:50%;
+	border-top:1px dashed #fff; 
+	opacity:.3; 
+}
+.hnu_schedule .in-box:nth-child(2) .title-h5 {background:#9b608a; }
+.hnu_schedule .schedule_table {
+	box-shadow:0 0 12px rgba(0, 0, 0, .12); 
+	border-radius:8px;
+	overflow:hidden; 
+	text-align:center;
+	background:#fff;  
+}
+.hnu_schedule .schedule_table table {
+	width:100%; 
+	table-layout:fixed; 
+}
+.hnu_schedule .schedule_table thead {	
+	background:#4c517c linear-gradient(to right, rgb(48, 70, 116) 40%, #6a7fad); 
+}
+.hnu_schedule .schedule_table thead th {
+	height:54px; 
+	text-align:center; 
+	color:#fff !important; 
+	font-size:0.933em; 
+	font-weight:500; 
+	background:transparent !important; 
+}
+.hnu_schedule .schedule_table td {
+	font-size:0.933em;
+	font-weight:500;
+}
+.hnu_schedule .schedule_table tbody tr:nth-child(1) td {padding-top:8px; }
+.hnu_schedule .schedule_table tbody tr:nth-last-child(1) td {padding-bottom:16px; }
+.hnu_schedule .schedule_table .item-day {
+	display:block;
+	padding:12px 0; 
+	position:relative; 
+}
+.hnu_schedule .schedule_table .day_sun {color:#dc5077; }
+.hnu_schedule .schedule_table .day_sun .item-day:after {
+	display:block;
+	content:"";
+	width:30px;
+	height:30px;
+	border-radius:100%;
+	border:1px dashed #dc5077;
+	background:#fcedf1;
+	position:absolute;
+	left:50%;
+	top:50%; 
+	opacity:.25; 
+	margin-top:1px; 	
+	transform:translate(-50%, -50%); 
+}
+.hnu_schedule .schedule_table .day_sat {color:#5690df; }
+.hnu_schedule .schedule_table .week {
+	background:#f4f4f8; 
+	color:#6d73a7; 
+	border-left:1px dashed rgba(0, 0, 0, .12); 
+}
+.hnu_schedule .in-box ul {padding:0 10px; }
+
+.hnu_schedule .in-box li + li {margin-top:0.85em; }
+.hnu_schedule .in-box.single {width:100%; }
+@media (min-width:1200px) {
+	.hnu_schedule {
+		padding:40px;
+		background:#f9f9fb; 
+		border-radius:16px; 
+		margin:20px 0;
+		border:0; 
+	}
+	.hnu_schedule .in-box {
+		display:inline-block; 
+		font-size:16px; 
+		width:40%; 
+	}
+	.hnu_schedule .in-box + .in-box {padding-left:60px; }
+	.hnu_schedule .in-box:nth-child(1) {
+		display:inline-block;
+		width:60%;
+	}
+	.hnu_schedule .in-box .title-h5 {
+		padding:15px 20px; 
+	}
+	.hnu_schedule .in-box .title-h5:after {width:calc(100% - 140px); }
+	.hnu_schedule .in-box ul {padding:0; }
+	.hnu_schedule .in-box li {
+		position:relative; 
+		padding-left:20px; 
+	}
+	.hnu_schedule .in-box li:before {
+		display:block;
+		width:8px;
+		height:8px;
+		border:2px solid #6d73a7;
+		content:"";
+		border-radius:100%;
+		position:absolute;
+		left:3px;
+		top:7px; 	
+		opacity:.75; 
+	}
+	.hnu_schedule .in-box.single {width:60%; }
+}

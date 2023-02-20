@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.EnrollFeeMapper">
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■학생■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<!-- ▶[학생] 자신의 등록금 내역을 조회한다. -->
+	<select id="getEnrollFeeList" parameterType="string" resultType="EnrollFeeVO">
+		select * from enrollfee where smem_no = #{smem_no}
+		order by enrl_year desc, enrl_semester desc
+	</select>
+	
+	<!-- ▶[학생] 자신의 정보를 조회한다.  -->
+	<select id="getStudentInfo" parameterType="string" resultType="map">
+		select *
+		from college c inner join department d
+		on d.col_code = c.col_code
+		inner join student s
+		on s.dep_code = d.dep_code
+		inner join member m
+		on m.mem_no = s.smem_no
+		where s.smem_no =#{smem_no}
+	</select>
+	
+	<!-- ▶[학생] 등록금을 납부한다.-->
+	<update id="payEnrollFee" parameterType="string">
+		update enrollfee set enrl_date = sysdate where enrl_code = #{enrl_code}
+	</update>
+	
+	<!-- ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■관리자■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ -->
+	<!-- ▶[관리자] 등록금 납부 기능을 학생 주체에게 오픈할 수 있는지의 여부를 판단한다(0인 경우 오픈 가능, 0 이상인 경우 오픈 불가)-->
+	<select id="checkTuiOpen" parameterType="map" resultType="int">
+		select count(*) as cnt 
+		             from enrollfee
+		             where enrl_year = #{enrl_year} and enrl_semester = #{enrl_semester}        
+	</select>
+	<!-- ▶[관리자] 등록금 고지 대상인 '재학'생 정보를 가져온다. -->
+	<select id="getEnrolledStudents" parameterType="map" resultType="map">
+		select *
+		from department d inner join student s
+		on s.dep_code = d.dep_code
+		where s.stu_record = '재학'
+	</select>
+	
+	<select id="getMemberInfo" parameterType="string" resultType="MemberVO">
+		select * from member where mem_no = #{mem_no}
+	</select>
+	
+	<!-- ▶[관리자] 등록금 고지 대상인 개별재학생 정보를 가져온다. -->
+	<select id="getScholarUnpaidInfo" parameterType="string" resultType="map">
+		select *
+		from scholar_list a inner join scholar_his b
+		on b.schl_code = a.schl_code
+		where b.schh_state = 0 and b.smem_no = #{smem_no}
+	</select>
+	
+	<!-- ▶[관리자] 학과 책정 등록금 정보와 회원 개별 장학금 승인 정보를 바탕으로 산정한 등록금 고지 정보를 추가한다. -->
+	<insert id="registerEnrollfee" parameterType="EnrollFeeVO">
+		insert into enrollfee(enrl_code, enrl_year, enrl_semester, enrl_fee, enrl_admiss, scholarship, enrl_total, enrl_bank, smem_no)
+		values('ENRL'||seq_enrl_code.nextval, #{enrl_year}, #{enrl_semester}, #{enrl_fee}, 0, #{scholarship}, #{enrl_total}, '농협', #{smem_no})
+	</insert>
+	
+	<!-- ▶[관리자] 등록금 고지 학생명단을 조회한다. -->
+	<select id="getAnnouncedTui" parameterType="map" resultType="EnrollFeeVO">
+		select *
+		from
+		    (select row_number() over(order by e.enrl_code asc) as enrl_row_number,
+                    m.mem_name as mem_name,
+		            e.*
+		       from member m inner join enrollfee e 
+               on e.smem_no = m.mem_no
+               where enrl_year=#{enrl_year} and enrl_semester=#{enrl_semester})
+	</select>
+	
+	<!-- ▶[관리자] 등록금 미고지 학생명단을 조회한다. -->
+	<select id="checkUnannouncedTui" parameterType="EnrollFeeVO" resultType="int">
+		select count(*) from enrollfee where smem_no = #{smem_no} and enrl_year = #{enrl_year} and enrl_semester = #{enrl_semester}
+	</select>
+	
+	<!-- ▶[관리자] 등록금 납부학생 인원을 조회한다. -->
+	<select id="checkPaidPeople" parameterType="enrollFeeVO" resultType="int">
+		select count(*) from enrollfee where enrl_date is not null and enrl_year = #{enrl_year} and enrl_semester = #{enrl_semester}
+	</select>
+		
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

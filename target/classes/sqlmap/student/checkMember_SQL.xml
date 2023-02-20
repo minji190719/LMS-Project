@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.CheckMemberMapper">
+
+	<select id="checkMember" parameterType="string" resultType="_int">
+		select mem_state from member where mem_no = #{mem_no}
+	</select>
+
+</mapper>

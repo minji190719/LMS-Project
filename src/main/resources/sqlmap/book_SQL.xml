@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.BookMapper">
+
+	<sql id="search">
+		<if test="selectCol != null and selectCol != ''">
+			AND ${selectCol} LIKE '%'||#{serachWord}||'%'	
+		</if>
+	</sql>
+
+	<select id="bookList" resultType="org.hdcd.vo.BookVO">
+		SELECT * FROM BOOK
+		WHERE BOOK_STATE = 1
+		<include refid="search"/>
+	</select>
+	
+	<select id="getBookrentalList" parameterType="string" resultType="java.util.Map">
+		SELECT A.*, B.* 
+	      FROM BOOKRENTAL A, BOOK B
+	     WHERE A.BOOK_CODE= B.BOOK_CODE
+	     AND A.SMEM_NO=#{userSessionId}
+	     ORDER BY RENT_START DESC
+	</select>
+	
+	<update id="bookStockDown" parameterType="string">
+		UPDATE BOOK
+	   	SET BOOK_STOCK = BOOK_STOCK - #{bookRental_cnt}
+		WHERE BOOK_CODE = #{book_code}
+	</update>
+	
+	<insert id="bookRental" parameterType="string">
+		INSERT INTO BOOKRENTAL VALUES(
+		    SEQ_RENT_CODE.NEXTVAL, #{sessionId}, #{book_code}, SYSDATE, SYSDATE + 7, 0, #{bookRental_cnt}, 0, 0
+		)
+	</insert>
+	
+	<update id="bookStockIncrement" parameterType="string">
+		UPDATE BOOK
+		SET BOOK_STOCK = BOOK_STOCK + 1 
+		WHERE BOOK_CODE = (SELECT BOOK_CODE
+		                    FROM BOOKRENTAL
+		                   WHERE RENT_CODE = #{rent_code})
+	</update>
+	
+	<update id="bookReturn" parameterType="string">
+		UPDATE BOOKRENTAL
+		SET RENT_STATE = 2
+		WHERE RENT_CODE = #{rent_code} 
+	</update>
+	
+	<update id="prolongBook" parameterType="string">
+		UPDATE BOOKRENTAL
+		SET RENT_END = RENT_END + 7
+		WHERE RENT_CODE = #{rent_code}
+	</update>
+	
+	<update id="rentExpandUpdate" parameterType="string">
+		UPDATE BOOKRENTAL
+		SET RENT_EXPAND = 1
+		WHERE RENT_CODE = #{rent_code}
+	</update>
+	
+</mapper>

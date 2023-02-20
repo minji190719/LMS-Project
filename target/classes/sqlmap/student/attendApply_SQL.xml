@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.AttendApplyMapper">
+
+	<select id="selectMyAbsentList" parameterType="string" resultType="map">
+		select a.* , st.*, lol.lol_name
+		  from attendance a, stu_timetable st, lecture l, lec_open_list lol
+		 where lol.lol_code = l.lol_code
+		   and l.lec_code = a.lec_code
+		   and a.lec_code = st.lec_code  
+		   and a.smem_no = st.smem_no
+		   and a.smem_no = #{userId}
+		   and a.attend_state = 2
+	</select>
+
+	<insert id="insertAttendApply" parameterType="AttendApplyVO">
+		<selectKey order="BEFORE" resultType="string" keyProperty="aa_code">
+			 select 'AA' || lpad(seq_aa_code.nextval, 3, '0') from dual
+		</selectKey>
+		insert into attend_apply (
+			aa_code, attend_code, aa_state, aa_reason, aa_detail
+		)values (
+			#{aa_code}, #{attend_code}, 0, #{aa_reason}, #{aa_detail}
+		)
+	</insert>
+	
+	<insert id="insertAttendProve" parameterType="AttendProveVO">
+		insert into attend_prove (
+			ap_code, file_name, file_size, file_originnm, file_path, aa_code, file_typ
+		)values (
+			'AP' || lpad(seq_ap_code.nextval, 3, '0'), #{file_name}, #{file_size}, #{file_originnm}, #{file_path}, #{aa_code}, #{file_typ}
+		)
+	</insert>
+	
+	<select id="selectMyAttendApplyList" parameterType="string" resultType="map">
+		select distinct
+		    aa_state as aa_state, aa_reject as aa_reject, aa.aa_code as aa_code,
+		    ap_code as ap_code, file_name as file_name, file_originnm as file_originnm, file_path as file_path,
+		    ad.smem_no as smem_no, attend_week as attend_week, attend_day as attend_day,
+		    st.lec_code as lec_code, st_day1 as st_day1, st_starttime1 as st_starttime1, st_endtime1 as st_endtime1, st_day2 as st_day2, st_starttime2 as st_starttime2, st_endtime2 as st_endtime2, st_year as st_year, st_semester as st_semester,
+		    l.lol_code as lol_code,
+		    lol_name as lol_name,
+		    mem_name as mem_name
+		from attend_apply aa left outer join attend_prove ap on(aa.aa_code = ap.aa_code)
+		                     left outer join attendance ad on(aa.attend_code = ad.attend_code)
+		                     left outer join stu_timetable st on(ad.lec_code = st.lec_code)
+		                     left outer join lecture l on(ad.lec_code = l.lec_code)
+		                     left outer join lec_open_list lol on(l.lol_code = lol.lol_code)
+		                     left outer join member m on(m.mem_no = ad.smem_no)
+		where ad.smem_no = #{userId}
+		and ad.smem_no = st.smem_no
+	</select>
+	
+	<delete id="deleteAttendApply" parameterType="string">
+		delete from attend_apply where aa_code = #{aaCode}
+	</delete>
+</mapper>

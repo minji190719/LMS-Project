@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.EmployEducationMapper">
+
+	<sql id="search">
+		<if test="searchWord != null and searchWord != ''">
+			WHERE EPRO_NAME LIKE '%'||#{searchWord}||'%'	
+		</if>
+	</sql>
+
+	<select id="getEmployEducationProgram" parameterType="string" resultType="org.hdcd.vo.EmployProgramVO">
+		SELECT * FROM 
+		EMPLOY_PROGRAM
+		<include refid="search"/>
+	</select>
+	
+	<select id="employEducationProgramDetailPage" parameterType="string" resultType="org.hdcd.vo.EmployProgramVO">
+		SELECT * 
+		FROM EMPLOY_PROGRAM
+		WHERE EPRO_CODE = #{epro_code}
+	</select>
+	
+	<insert id="employEducationProgramApply" parameterType="string">
+		INSERT INTO EMPLOY_APPLY VALUES(
+		    SEQ_EMPA_CODE.NEXTVAL, SYSDATE, 1,#{userId}, #{epro_code}
+		)
+	</insert>
+	
+	<update id="IncrementEproCurcnt" parameterType="string">
+		UPDATE EMPLOY_PROGRAM
+	       SET EPRO_CURCNT = EPRO_CURCNT + 1
+		 WHERE EPRO_CODE = #{epro_code}
+	</update>
+	
+	<select id="employEducationProgramApplyValidation" parameterType="string" resultType="org.hdcd.vo.EmployApplyVO">
+		SELECT * 
+		FROM EMPLOY_APPLY
+		WHERE EPRO_CODE= #{epro_code}
+		AND SMEM_NO=#{userId}
+	</select>
+	
+</mapper>

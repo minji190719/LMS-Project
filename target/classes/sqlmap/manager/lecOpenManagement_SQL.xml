@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MLecOpenManagementMapper">
+
+	<select id="selectLecOpenApplyList" resultType="map">
+		select lol.lol_code, lol.lol_name, m.mem_name ,p.pmem_no, d.dep_name, to_char(lol.lol_date, 'yyyy/MM/dd') as lol_date, lol.lol_state, lol.lol_reject
+ 		  from lec_open_list lol, professor p, department d, member m
+ 		 where m.mem_no = lol.pmem_no
+ 		   and lol.pmem_no = p.pmem_no
+ 		   and p.dep_code = d.dep_code
+ 		 order by lol.lol_date desc
+	</select>
+	
+	<select id="selectRejectContent" parameterType="string" resultType="LecOpenListVO">
+		select lol_reject
+		  from lec_open_list
+		 where lol_code = #{lolCode}
+	</select>
+	
+	<select id="selectAllLecOpenApplyContents" parameterType="string" resultType="map">
+		select lol.*, lp.*, p.*, d.dep_name, d.dep_tel, m.mem_name, m.mem_tel, m.mem_email
+		  from lec_open_list lol, lecture_plan lp, department d, professor p, member m
+		 where d.dep_code = p.dep_code 
+           and p.pmem_no = m.mem_no
+           and m.mem_no = lol.pmem_no
+           and lol.lol_code = lp.lol_code
+  		   and lp.lol_code = #{lolCode}
+	</select>
+	
+	<update id="updateLecOpenListState" parameterType="string">
+		update lec_open_list
+		   set lol_state = 1
+		  where lol_code = #{lolCode}
+	</update>
+	
+	<update id="updateLecOpenListStateNReject" parameterType="LecOpenListVO">
+		update lec_open_list
+		   set
+		   	   lol_state = 2, lol_reject = #{lol_reject}
+		 where lol_code = #{lol_code}
+	</update>
+		
+	<select id="selectRoomList" resultType="map">
+		select lr.* , c.col_name
+		  from lecture_room lr, college c
+		 where lr.col_code = c.col_code
+	</select>
+	
+	<insert id="insertAssignRoom" parameterType="AssignRoomVO"  useGeneratedKeys="true">
+		<selectKey order="BEFORE" resultType="string" keyProperty="assign_code">
+			select 'AR' ||  LPAD(seq_assigncode.nextval, 3, '0') from dual
+		</selectKey>	
+		insert into assign_room (
+			assign_code, room_code
+		) values (
+			#{assign_code}, #{room_code}
+		)
+	</insert>
+	
+	<insert id="insertLecture" parameterType="LectureVO">
+		insert into lecture (
+			lec_code, lol_code, lec_state, assign_code
+		) values (
+			'LC'||lpad(seq_lec_code.nextval, 3, '0'), #{lol_code}, 0, #{assign_code}
+		)
+	</insert>
+</mapper>

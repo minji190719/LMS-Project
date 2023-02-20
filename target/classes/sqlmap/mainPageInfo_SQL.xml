@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.MainPageInfoMapper">
+	
+	<select id="getGraduateInfo" parameterType="string" resultType="map">
+		select distinct sum(lg_apply_credit) over(partition by a.lg_area) as credit, a.lg_area from LEC_GRADE a, (select * from student
+				where smem_no=#{userId}) b
+				where a.smem_no = b.smem_no
+	</select>
+	
+	
+	<select id="getBookRental" parameterType="string" resultType="java.util.Map">
+		SELECT A.RENT0, B.RENT1
+		FROM (SELECT COUNT(*) AS RENT0 
+		        FROM BOOKRENTAL
+		       WHERE SMEM_NO = #{userId}
+		         AND RENT_STATE = 0) A, (SELECT COUNT(*) AS RENT1
+		                                   FROM BOOKRENTAL
+		                                  WHERE SMEM_NO = #{userId}
+		                                    AND RENT_STATE = 1) B
+	</select>
+	
+	<select id="getBookList" resultType="org.hdcd.vo.BookVO">
+		SELECT * FROM BOOK
+	</select>
+	
+	<select id="mainPageCounselapplyList" parameterType="string" resultType="org.hdcd.vo.CounselApplyVO">
+		SELECT A.*, C.MEM_NAME
+		  FROM (SELECT *
+		         FROM COUNSEL_APPLY
+		        WHERE SMEM_NO=#{userId}) A, COUNSEL B, MEMBER C
+		 WHERE A.CNSL_CODE=B.CNSL_CODE
+		   AND B.PMEM_NO=C.MEM_NO
+		   ORDER BY A.CNSLA_DATE DESC
+	</select>
+	
+	<select id="professorMainPageCounselapplyList" parameterType="string" resultType="org.hdcd.vo.CounselApplyVO">
+		SELECT B.*, C.MEM_NAME
+		  FROM (SELECT * 
+		          FROM COUNSEL
+		         WHERE PMEM_NO=#{userId}) A, COUNSEL_APPLY B, MEMBER C
+		 WHERE A.CNSL_CODE=B.CNSL_CODE
+		 AND B.SMEM_NO=C.MEM_NO
+		 ORDER BY B.CNSLA_DATE DESC
+	</select>
+	
+	<select id="getAllFoodList" resultType="FoodCalendarVO">
+      select * from foodcalendar
+   </select>
+	
+	
+	<!-- ■ 학생 -->
+	<!-- 0) 이름 -->
+	<select id="getName" parameterType="string" resultType="MemberVO">
+		select * from member where mem_no = #{mem_no}
+	</select>
+	
+	<!-- 0) 학과 -->
+	<select id="getStdentInfo" parameterType="string" resultType="StudentVO">
+		select * from student where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 0) 단과대학 -->
+	<select id="getCollege" parameterType="string" resultType="string">
+		select col_name
+		from college c inner join department d
+		on d.col_code = c.col_code
+		where d.dep_name = #{dep_name} and rownum = 1
+	</select>
+	
+	<!-- 1) 학적 -->
+	<select id="getStuRecord" parameterType="string" resultType="string">
+		select stu_record from student where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 2) 이수학점 -->
+	<select id="getLhCredit" parameterType="string" resultType="string">
+		select sum(lh_credit) from lec_history where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 3) 교내 봉사시간 -->
+	<select id="getInsideVolh" parameterType="string" resultType="string">
+		select sum(volh_time) from volunteer_his where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 4) 교외 봉사시간 -->
+	<select id="getSuburbVolh" parameterType="string" resultType="string">
+		select sum(volo_time) from volunteer_out where smem_no = #{smem_no} and volo_state = 1
+	</select>
+	
+	<!-- 5) 자격증 승인 이력 -->
+	<select id="getLicenseEnroll" parameterType="string" resultType="string">
+		select count(*) from license_enroll where smem_no = #{smem_no} and enroll_state = 1
+	</select>
+	
+	<!-- 6) 도서 반납일 -->
+	<select id="getBookRentEnd" parameterType="string" resultType="string">
+	<![CDATA[
+		select rent_end
+		from
+		    (select row_number() over(order by bookrental.rent_end) as num,
+		            bookrental.*
+		      from bookrental
+		      where smem_no = #{smem_no} and rent_state <> 2
+		      order by rent_end asc)
+		where num = 1
+	]]>
+	</select>
+	
+	<!-- 7) 커뮤니티 내 글 -->
+	<select id="getMyCommunity" parameterType="string" resultType="string">
+		select count(*) from community where smem_no = #{smem_no}
+	</select>
+	
+	<!-- 8) 커뮤니티 내 글 -->
+	<select id="getCnslDate" parameterType="string" resultType="string">
+	<![CDATA[
+		select cnsl_date
+		from
+		    (select row_number() over(order by counsel_apply.cnsl_date desc) as num,
+		            counsel_apply.*
+		      from counsel_apply
+		      where smem_no = #{smem_no} and cnsla_state = 1 and cnsl_date < sysdate
+		      order by cnsl_date desc)
+		where num = 1
+	]]>
+	</select>
+	
+	<!-- ■ 관리자 메인 페이지 정보: 학적변동 신청 / 개설과목 신청 / 등록금 / 등록금 납부율 / 자격증 신청 / 봉사 신청 / 장학금 신청 / 커뮤니티 신고-->
+	<!-- 1) 학적변동 신청 -->
+	<select id="getRecordApply" resultType="string">
+		select count(*) from record_apply where rcrda_state = 0
+	</select>
+	
+	<!-- 2) 개설과목 신청 -->
+	<select id="getLecOpen" resultType="string">
+		select count(*) from lec_open_list where lol_state = 0
+	</select>
+	
+	<!-- 3) 등록금 고지인원-->
+	<select id="getAnnouncedFee" parameterType="int" resultType="string">
+		select count(*) as cnt from enrollfee where enrl_year = extract(year from sysdate) and enrl_semester = #{enrl_semester}
+	</select>
+	
+	<!-- 4) 등록금 납부인원 -->
+	<select id="getPaidFee" parameterType="int" resultType="string">
+		select count(*) from enrollfee where enrl_date is not null and enrl_year = extract(year from sysdate) and enrl_semester = #{enrl_semester}
+	</select>
+	
+	<!-- 5) 자격증 신청 -->
+	<select id="getLicense" resultType="string">
+		select count(*) from license_enroll where enroll_state = 0
+	</select>
+	
+	<!-- 6) 봉사 신청 -->
+	<select id="getVolunteer" resultType="string">
+		select count(*) from volunteer_out where volo_state = 0
+	</select>
+	
+	<!-- 7) 장학금 신청 -->
+	<select id="getScholar" resultType="string">
+		select count(*) from scholar_apply where scha_state = 0
+	</select>
+	
+	<!-- 8) 커뮤니티 신고 -->
+	<select id="getCReport" resultType="string">
+		select count(*) from community where cmnt_report like'%/%'
+	</select>
+	
+	<!-- ■ 교수 메인 페이지 정보: -->
+	<!-- 1) 멤버 vo -->
+	<select id="getMemberInfo" parameterType="string" resultType="MemberVO">
+		select * from member where mem_no = #{mem_no}
+	</select>
+	
+	<!-- 1) 교수 vo -->
+	<select id="getProfessorInfo" parameterType="string" resultType="ProfessorVO">
+		select * from professor where pmem_no = #{pmem_no}
+	</select>
+	
+	<!-- 2) 학과 vo -->
+	<select id="getDepartmentVO" parameterType="string" resultType="DepartmentVO">
+		select * from department where dep_code = #{dep_code}
+	</select>
+	
+	<!-- 3) 단과대학명 -->
+	<select id="getCollegeName" parameterType="string" resultType="String">
+		select col_name from college where col_code= #{col_code}
+	</select>
+	
+	<!-- 3) 강의 평점 -->
+	<select id="getLecAverage" parameterType="string" resultType="String">
+		select 
+		       floor(avg(c.ls_question1 + c.ls_question2 + c.ls_question3 + c.ls_question4 + c.ls_question5) / 5) as score
+		from lec_open_list a inner join lecture b on b.lol_code = a.lol_code
+		inner join lec_survey c on c.lec_code = b.lec_code
+		where a.pmem_no = #{pmem_no}
+	</select>
+	
+	<!-- 4) 개설 강좌수  -->
+	<select id="getOpenLec" parameterType="string" resultType="String">
+		select count(*) from lec_open_list where pmem_no = ${pmem_no} and lol_state = 1
+	</select>
+	
+	<!-- 5) 상담 대기수  -->
+	<select id="getCStandBy" parameterType="string" resultType="String">
+		select count(*)
+		from counsel a inner join counsel_apply b
+		on b.cnsl_code = a.cnsl_code
+		where a.pmem_no = #{pmem_no} and b.cnsla_state = 0
+	</select>
+	
+	<!-- 나의 포틀릿 업데이트 -->
+	<update id="updateMyPortlet" parameterType="map">
+		update member set mem_portlet = #{mem_portlet} where mem_no = #{mem_no}
+	</update>
+	
+	
+	<!-- 	역량차트 -->
+	
+	
+	<select id="getVolunInTime" parameterType="String" resultType="int">
+		select sum(volo_time) from volunteer_out where smem_no = #{userId} and volo_state = 1
+	</select>
+
+	<select id="getVolunOutTime" parameterType="String" resultType="int">
+		select sum(volh_time) from volunteer_his where smem_no = #{userId}
+	</select>
+	
+	<select id="getBookRentalCount" parameterType="String" resultType="int">
+		select count(*) from bookrental where smem_no = #{userId}
+	</select>
+
+	<select id="getLicenseCount" parameterType="String" resultType="int">
+		select count(*) from license_enroll where smem_no = #{userid}
+	</select>
+	
+	<select id="getGradeValue" parameterType="String" resultType="double">
+		select round(avg(LG_RATING),1) from lec_grade where smem_no = #{userId}
+	</select>
+	
+	<select id="getCounselCount" parameterType="String" resultType="int">
+		select count(*) from counsel_apply where smem_no = #{userId} and cnsla_state = 1
+	</select>
+	
+	<select id="getCommunityCount" parameterType="String" resultType="int">
+		select count(*) from community where smem_no = #{userid} 
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.PLectureMapper">
+
+	<!-- 성적관련 모든 정보 한번에 가져오기 -->
+	<select id="getGradeInfo" resultType="HashMap" parameterType="map">
+		select * from (select * from (select b.LEC_CODE from (select LOL_CODE from LEC_OPEN_LIST
+		where PMEM_NO = #{pMemNo}) a
+		inner join lecture b
+		on (a.LOL_CODE = b.LOL_CODE)
+		where b.LEC_STATE = 1) a
+		inner join LEC_GRADE_CVT b
+		on(a.lec_code = b.lec_code)
+		where a.lec_code = #{lecCode}) a
+		, STUDENT b, MEMBER c, DEPARTMENT d, COLLEGE e
+		where a.SMEM_NO = b.SMEM_NO
+		and b.SMEM_NO = c.MEM_NO
+		and b.DEP_CODE = d.DEP_CODE
+		and d.COL_CODE = e.COL_CODE
+	</select>
+	
+	<!-- 내 강의목록 전부 출력 -->
+	<select id="getMyLecList" resultType="map" parameterType="ProfessorVO">
+		select * from (select * from lec_open_list
+		where pmem_no = #{pmem_no}) a, lecture b, professor c, department d
+		where a.lol_code = b.lol_code
+		and b.lec_state = 1
+		and a.pmem_no = c.pmem_no
+		and c.dep_code = d.dep_code
+	</select>
+	
+	
+	<!-- 학생 성적 부여 -->
+	<insert id="insertGrade" parameterType="map">
+		insert into LEC_GRADE
+		values ('LG'||LPAD(TO_CHAR(SEQ_LG_CODE.nextval),4,0), 2022, #{STU_SCHYEAR}, '전공/필수',
+		        #{LOL_NAME}, 3, 3, #{LGC_TOTALSCORE}, #{rating}, #{grade}, 0, #{LEC_CODE}, #{MEM_NO}, (select lh_code from lec_history
+				where lec_code = #{LEC_CODE}
+				and smem_no = #{MEM_NO}) , 1, 0)
+	</insert>
+	
+	<!-- 성적을 등록했는지 안했는지 확인 -->
+	<select id="checkGradeInsert" parameterType="string" resultType="int">
+		select count(*) from lec_grade where lec_code = #{lecCode}
+	</select>
+	
+	
+</mapper>

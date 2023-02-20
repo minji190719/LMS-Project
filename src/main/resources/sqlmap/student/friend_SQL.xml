@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.FriendMapper">
+
+	<!-- 친구 서치 -->
+	<select id="searchFriend" parameterType="string" resultType="int"> 
+		select count(*) from student where smem_no = #{memNo}
+	</select>
+
+	<!-- 친구 추가 (대기상태임) -->
+	<insert id="insertFriend" parameterType="map">
+		insert into friend values(#{SMEM_NO}, #{FMEM_NO}, 0)
+	</insert>
+	
+	<!-- 내친구목록 -->
+	<select id="getMyFriendList" parameterType="String" resultType="map">
+		select * from (select * from (select * from friend where smem_no = #{userId} or fmem_no = #{userId}) a
+				where friend_state = 1) a, member b, student c
+				where a.fmem_no = b.mem_no
+				and b.mem_no = c.smem_no
+	</select>
+	<!-- 방금승인한 친구 목록 -->
+	<select id="getOneFriendInfo" parameterType="map" resultType="map">
+	 select * from (select * from friend 
+			 where smem_no = #{smem_no}
+			 and fmem_no = #{userId}
+			 and friend_state = 1) a,
+			 member b,
+			 student c
+			 where a.smem_no = b.mem_no
+			 and b.mem_no = c.smem_no
+	</select>
+	
+	<!-- 친구요청 대기 목록 (내가 친구요청을 건 상태)-->
+	<select id="getMyFriendWait" parameterType="string" resultType="map">
+		select * from friend where smem_no = #{memId} and friend_state = 0
+	</select>
+	
+	<!-- 친구 요청 목록 (친구가 나에게 요청을 한 상태)-->
+	<select id="getMyFriendRequest" parameterType="string" resultType="map">
+		select * from friend where fmem_no = #{memId} and friend_state = 0
+	</select>
+	
+	<!-- 친구 대기목록에서 삭제 -->
+	<delete id="deleteFriendRequest" parameterType="map">
+		delete from friend where smem_no = #{userId} and fmem_no = #{fmemNo}
+	</delete>
+	
+	<!-- 친구요청 수락 -->
+	<update id="updateRequest" parameterType="map"> 
+		update friend set friend_state = 1 where smem_no = #{smem_no} and fmem_no = #{userId}
+	</update>
+	
+</mapper>

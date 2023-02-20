@@ -1,0 +1,295 @@
+@charset "UTF-8";
+
+/*************************[포털]프로필***************************/
+/****1. 포털 프로필 이미지****/
+/*프로필 이미지박스를 감싸는 컨테이너*/
+.imageContainer{
+	position: relative;
+	display: flex;
+	justify-content: center;
+}
+
+/*프로필 이미지를 감싸는 박스*/
+.imagebox{
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	overflow: hidden;
+	background-color: #4d7cff;
+	position: absolute;
+	bottom: 15px;
+}
+
+/****2. 포털 프로파일 하단 텍스트****/
+/*프로필 하단 텍스트를 감싸는 컨테이너*/
+.profileContainer{
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+}
+
+/*프로필 하단 텍스트의 5가지 아이템 박스*/
+.profileBox{
+	display: inline-block flex;
+	width: 15%;
+	text-align: center;
+	justify-content: center;
+}
+
+.mainMyInfo{
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+}
+.mainMyInfo div{
+	display: inline-block;
+}
+
+
+/*************************포틀릿************************************/
+
+.potletModalContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.potletModalCheck{
+	padding-right: 10px;
+}
+
+.potletModalLayout{
+  display: grid;
+  border: 1px solid black;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  border-radius: 10px;
+}
+
+.potletModalLayout .item{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid grey;
+  background-color: var(--light);
+  color: var(--custom-s);
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.item0{
+  grid-column: span 2;
+}
+
+.potletModalCheck label{
+	display: block;
+	text-align: left;
+}
+
+.potletModalCheck input[type="checkbox"]:checked:after{
+	color : var(--custom-s);
+}
+
+/**************Main 캘린더 css**********************/
+
+.fc .fc-toolbar.fc-header-toolbar{
+ 	margin-bottom:-20px;
+}
+.fc .fc-university-button{
+	background-color:#7ab2fa;
+	color:black;
+	font-weight : bold;
+} 
+.fc .fc-department-button{
+	background-color:#7afad1;
+	color:black;
+	font-weight : bold;
+} 
+.fc .fc-mycalen-button{
+	background-color:#abfa7a;
+	color:black;
+    font-weight : bold;	
+}
+.fc .fc-icon-chevron-left{
+	color:black;
+}
+.fc .fc-prev-button{
+	background-color:white;
+	border-color: white;
+}
+
+.fc .fc-icon-chevron-right{
+	color:black;
+}
+.fc .fc-next-button{
+	background-color:white;
+	border-color: white;
+}
+.fc .fc-bg-event{
+	margin-top:25px;
+	opacity:1;
+	border-radius:30px;
+	padding-top:5px;
+}
+.fc .fc-daygrid-day-number{
+   color : #0a3875;
+   font-weight : bold;
+}
+
+.fc .fc-event .fc-event-title{
+   color : #0a3875;
+   font-weight:bold;
+   font-size : 3px;
+}
+
+.fc-day-sun{
+	color : red;
+	font-weight:bold;
+}
+.fc-day-sat{
+	color:blue;
+}
+
+#calendar{
+	height:450px;
+}
+
+
+
+/*************community css************/
+.communityTable table, thead {
+   width:100%;
+}
+
+.communityTable table thead tr {
+   display:table;
+    table-layout:fixed;
+    width:100%;
+}
+
+.communityTable tbody { 
+   display: block;
+   overflow: auto;
+   overflow-x: hidden;
+   height: 160px;
+}
+
+.communityTable tbody tr {
+   display: table;
+   table-layout: fixed;
+   width:100%;
+}
+
+.communityTable tr td {
+   text-align: center;
+}
+
+.communityTable tr td:first-child{
+	width: 20%;
+}
+
+.communityTable tr td:nth-child(2){
+	width: 20%;
+}
+
+.communityTable tr td:last-child{
+	width: 60%;
+}
+
+/**.grid-stack { background: mediumturquoise; }**/
+.portlet-item {}
+.grid-stack-item-content {
+	overflow: hidden !important;
+}
+
+.portlet-item>.card-body{
+	height : 640px;
+	max-height: 1280px;
+}
+
+#chartTable th{
+	padding-left:7px;
+	padding-right:8px;
+}
+
+ul>.pagination{
+	display:none;
+}
+
+.dataTables_length {
+	display: none;
+}
+
+table.dataTable tr.odd {
+	background-color: white;
+}
+
+table.dataTable th {
+	font-size: 13px;
+	text-align: center;
+}
+
+table.dataTable td {
+	padding: 7px;
+	font-size: 13px;
+	text-align: center;
+}
+/*로딩애니매이션 프로그레스바*/
+/* .progress {  */
+/*     background-color: rgb(0, 0, 0); */
+/*     color: rgb(255, 255, 255); */
+/*     height: 100%; */
+/*     position: absolute; */
+/*     width: 100%; */
+/* } */
+/* .progress-bar {  */
+/*     border-top: 1px solid rgb(160, 160, 160); */
+/*     position: absolute; */
+/*     top:50%; */
+/*     width: 0%; */
+/* } */
+/* .progress-text { */
+/*     font-family: "Menlo", "Consolas", monospace; */
+/*     font-size: 12px; */
+/*     margin-top: 10px; */
+/*     position: absolute; */
+/*     text-align: center; */
+/*     top: 50%; */
+/*     width: 100%; */
+/* } */
+/* .progress-complete .progress-bar { */
+/*     border-top-color: rgb(255, 255, 255); */
+/* } */
+
+/*슬릭 슬라이더*/
+.mainSlide img{
+	width: 100%;
+	height: 120px;
+	object-fit: cover;
+}
+
+/*뉴스 검색*/
+#tbodyForNews{
+	height: 90px;
+	overflow:auto;
+	overflow-x:hidden;
+}
+
+#tbodyForNews tr{
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+#tbodyForNews tr td:first-child {
+	width: 15%;
+}
+
+#tbodyForNews tr td:nth-child(2) {
+	width: 70%;
+}
+
+#tbodyForNews tr td:last-child{
+	width: 15%;
+}

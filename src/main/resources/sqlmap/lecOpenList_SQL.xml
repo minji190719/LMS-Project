@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.LecOpenListMapper">
+
+	
+	<insert id="insertLecList" parameterType="LecOpenListVO" useGeneratedKeys="true">
+		<selectKey order="BEFORE" resultType="string" keyProperty="lol_code">
+			select 'LO' || LPAD(seq_lol_code.nextval, 3, '0') from dual
+		</selectKey>
+		insert into lec_open_list (
+			lol_code, pmem_no, lol_name, lol_date, lol_state, lol_limit, lol_credit, lol_schyear, major_cultural, choice_require
+			, lol_year, lol_semester, lol_saved, lol_daycount, lol_day1, lol_startime1, lol_endtime1
+			, lol_day2, lol_startime2, lol_endtime2
+		) values (
+			#{lol_code}, #{pmem_no}, #{lol_name}, sysdate, 0, #{lol_limit}, #{lol_credit}, #{lol_schyear}, #{major_cultural}, #{choice_require}
+			, #{lol_year}, #{lol_semester}, #{lol_saved}, #{lol_daycount}, #{lol_day1}, #{lol_startime1}, #{lol_endtime1}
+			, #{lol_day2}, #{lol_startime2}, #{lol_endtime2}
+		)
+	</insert>
+
+	<insert id="insertLecPlan" parameterType="LecturePlanVO">
+		insert into lecture_plan (
+			lp_code, lol_code, lp_week1, lp_week2, lp_week3, lp_week4, lp_week5, lp_week6
+			, lp_week7, lp_week8, lp_week9, lp_week10, lp_week11, lp_week12, lp_week13
+			, lp_week14, lp_week15, lp_content, lp_attend_ref, lp_test_ref, lp_task_ref
+			, lp_note, lp_score, lp_book
+		) values (
+			'LP' || LPAD(seq_lp_code.nextval, 3, '0'), #{lol_code}, #{lp_week1}, #{lp_week2}, #{lp_week3}
+			, #{lp_week4}, #{lp_week5}, #{lp_week6}, #{lp_week7}, #{lp_week8}, #{lp_week9}, #{lp_week10}
+			, #{lp_week11}, #{lp_week12}, #{lp_week13}, #{lp_week14}, #{lp_week15}
+			, #{lp_content}, #{lp_attend_ref}, #{lp_test_ref}, #{lp_task_ref}, #{lp_note}, 0, #{lp_book}
+		)
+	
+	</insert>
+
+	<select id="selectList" parameterType="string" resultType="LecOpenListVO">
+	   select a.lol_code, b.pmem_no, c.dep_name, a.lol_name, a.lol_date, a.lol_state, a.lol_limit
+		    , a.lol_credit, a.lol_schyear, a.major_cultural, a.choice_require, a.lol_year, a.lol_semester, a.lol_saved
+			, a.lol_daycount, a.lol_day1, a.lol_startime1, a.lol_endtime1, a.lol_day2, a.lol_startime2, a.lol_endtime2, a.lol_reject 
+		 from lec_open_list a, professor b, department c
+		where a.pmem_no=b.pmem_no
+ 		  and b.dep_code=c.dep_code
+          and b.pmem_no = #{userId}
+        order by lol_date desc
+	</select>
+
+	
+	<delete id="deleteLecList" parameterType="string">
+		delete from lec_open_list where lol_code = #{lol_code}
+	</delete>
+
+
+	<select id="selectOneLol" parameterType="string" resultType="LecOpenListVO">
+		select * from lec_open_list where lol_code = #{lolCode}
+	</select>
+
+	<select id="selectOneLp" parameterType="string" resultType="LecturePlanVO">
+		select * from lecture_plan where lol_code = #{lolCode}
+	</select>
+
+	
+	<update id="updateLecOpenList" parameterType="LecOpenListVO">
+		update lec_open_list
+		set
+			 lol_name = #{lol_name}, lol_date = sysdate, lol_limit = #{lol_limit}, lol_credit = #{lol_credit}
+			, lol_schyear = #{lol_schyear}, major_cultural = #{major_cultural}, choice_require = #{choice_require}, lol_year = #{lol_year}
+			, lol_semester = #{lol_semester}, lol_saved = #{lol_saved}, lol_daycount = #{lol_daycount}, lol_day1 = #{lol_day1}
+			, lol_startime1 = #{lol_startime1}, lol_endtime1 = #{lol_endtime1}, lol_day2 = #{lol_day2}, lol_startime2 = #{lol_startime2}
+			, lol_endtime2 = #{lol_endtime2}
+		where lol_code = #{lol_code}
+	</update>
+
+	<update id="updateLecPlan" parameterType="LecturePlanVO">
+		update lecture_plan
+		set 
+			lp_week1 = #{lp_week1}, lp_week2 = #{lp_week2}, lp_week3 = #{lp_week3}, lp_week4 = #{lp_week4}
+			, lp_week5 = #{lp_week5}, lp_week6 = #{lp_week6}, lp_week7 = #{lp_week7}, lp_week8 = #{lp_week8}
+			, lp_week9 = #{lp_week9}, lp_week10 = #{lp_week10}, lp_week11 = #{lp_week11}, lp_week12 = #{lp_week12}
+			, lp_week13 = #{lp_week13}, lp_week14 = #{lp_week14}, lp_week15 = #{lp_week15}, lp_content = #{lp_content}
+			, lp_attend_ref = #{lp_attend_ref}, lp_test_ref = #{lp_test_ref}, lp_task_ref = #{lp_task_ref}
+			, lp_note = #{lp_note}, lp_book = #{lp_book}
+		where lol_code = #{lol_code}
+	</update>
+
+	<select id="selectLecList" parameterType="string" resultType="map">
+		select lol.lol_code as lol_code, major_cultural, choice_require,
+			   lol_name ,lec_code, lec_state, assign_code,
+				(select distinct c.dep_name
+    			   from lec_open_list a, professor b, department c
+   				  where a.pmem_no=b.pmem_no
+ 		 			and b.dep_code=c.dep_code
+ 		 			and a.pmem_no=#{userId}) as dep_name 
+		  from lec_open_list lol left outer join lecture l on(lol.lol_code = l.lol_code)
+		 where lol.pmem_no = #{userId}
+			   and lol.lol_state = 1
+	</select>
+
+	<update id="updatePLecture" parameterType="string">
+		update lecture
+		   set lec_state = 1
+		   where lec_code = #{lecCode}
+	</update>
+
+	<select id="selectLecturePlanList" parameterType="string" resultType="map">
+		 select lol.lol_code as lol_code, lp.lp_code, 
+      			lol.major_cultural, lol.choice_require, lol.lol_name,
+				(select distinct c.dep_name
+    			   from lec_open_list a, professor b, department c
+   				  where a.pmem_no=b.pmem_no
+ 		 			and b.dep_code=c.dep_code
+ 		 			and a.pmem_no=#{userId}) as dep_name 
+		  from lec_open_list lol, lecture_plan lp 
+		 where lol.lol_code = lp.lol_code
+           and lol.pmem_no = #{userId}
+           and lol.lol_state = 1
+           order by lp.lp_code desc
+	</select>
+
+	<select id="selectOneLecPlan" parameterType="string" resultType="LecturePlanVO">
+		select * from lecture_plan where lol_code = #{lolCode}
+	</select>
+	
+	<update id="updatePLectureZero" parameterType="string">
+		update lecture
+		   set lec_state = 0
+		   where lec_code = #{lecCode}
+	</update>
+
+	<select id="selectProfessorMyInfo" parameterType="string" resultType="map">
+		select p.pmem_no, m.mem_name, d.dep_name, c.col_name
+          from professor p, member m, department d, college c
+         where m.mem_no = p.pmem_no
+           and p.dep_code = d.dep_code
+           and d.col_code = c.col_code
+           and p.pmem_no = #{userId}
+	</select>
+
+
+
+
+
+
+
+</mapper>

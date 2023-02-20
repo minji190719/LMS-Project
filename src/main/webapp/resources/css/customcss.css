@@ -1,0 +1,340 @@
+@charset "UTF-8";
+.table-timeTable{
+	width:100%;
+	height:100%;
+	table-layout:fixed;
+	font-size:12px;
+}
+
+.cal-title {
+	font-weight:bold;
+	font-size:18px;
+	color:black;
+}
+
+.table-timeTable tr{
+	height:40px;	
+}
+
+
+.table-timeTable tr td:nth-child(n+2){
+	border: 2px solid #cdcaca;
+}
+
+.table-timeTable tr td:nth-child(1){
+	text-align:right;
+	padding-right:20px;
+}
+
+.clickBg{
+	background-color:#c7dfed;	
+}
+
+.partColor{
+	background-image: linear-gradient(to right, #e9fff1 80%, white);
+	z-index:2;
+}
+
+.bg-darkGreen {
+	background-color:#004130;
+}
+
+.custom-overflow-auto{
+	overflow:auto;
+}
+.custom-table-sm{
+	width:100%;
+	table-layout:fixed;
+	min-width:50px;
+}
+.custom-table-sm td{
+	width: 100px;
+	min-width : 50px;
+	height:25px;
+	min-hieght:50px;
+	overflow:hidden;
+	text-overflow: ellipsis;
+}
+
+.custom-fontColor-white{
+	color: #fff;
+}
+
+.custom-table-height-35 td{
+	height:35px;
+}
+
+.custom-table{
+	width:100%;
+	height:700px;
+	table-layout: fixed;
+	min-width:300px;
+}
+
+.custom-table td {
+	width: 100px;
+	min-width : 50px;
+	height:50px;
+	min-hieght:50px;
+	overflow:hidden;
+	text-overflow: ellipsis;
+}
+
+/* 클릭시 파장 */
+.click-wave{
+	position:absolute;
+	width:30px;height:30px;
+	transform:translate(-50%, -50%);
+	border-radius:50%;
+	border:2px solid red;
+	z-index:100;
+	animation : circleSize 0.25s ease;
+}
+
+
+.mini-timeTable{
+	width:100%;
+	min-width:50px;
+	height : 500px;
+	table-layout:fixed;
+}
+
+.mini-timeTable td{
+	overflow:hidden;
+	white-space : nowrap;
+	text-overflow: ellipsis;
+}
+
+
+@keyframes circleSize {
+	0%{
+		width:0;
+		height:0;
+	}
+	100%{
+	    width:30px;
+	    height:30px;
+	}
+}
+
+
+/* div 테두리 둥글게 */
+.custom-div-radius{
+	border-radius : 20px;
+}
+
+/* 배경색 파란색연한느낌? */
+.bg-gray{
+/* 	background-color : #d8e3f2; */
+	background-color : #f4fbf1;
+}
+
+.bg-wwGreen {
+	background-color:#f1ffeb;
+}
+
+.bg-whiteGreen{
+	background-color :#e9fff1;	
+}
+
+.bg-whitegray{
+	background-color : #eeeeee;
+}
+
+.bg-hgreen{
+	background-color:#9EB990;
+}
+
+.bg-eval{
+	background-color:#c2ddb4;
+}
+
+/* 테이블 헤더색 회색느낌임 */
+.table-header-color {
+	background-color : #c4cad2;
+}
+
+/* center 정렬*/
+.tmp-center{
+	position:relative;
+	top:27px;
+}
+
+/* 테이블 헤더 고정 */
+.table-sticky thead tr th{
+	position: sticky;top:-1px;
+	background-color : #e9ecef;
+}
+.custom-font-size{
+	font-size :30px;	
+}
+
+.custom-font-size-100{
+	font-size:50px;
+	font-weight:bold;
+}
+
+.custom-font-size-20{
+	font-size :20px;	
+}
+
+.custom-font-red{
+	color:red;	
+	font-weight:bold;
+}
+.custom-font-green{
+	color:green;	
+	font-weight:bold;
+}
+
+.custom-font-bold{
+	font-weight:bold;	
+}
+/* 진한 글씨색 */
+.custom-font-dark {
+   color : #0a3875;
+   font-weight : bold;
+}
+
+/* 테이블 간격요 */
+.table-spacing{
+	border-collapse: separate;
+	border-spacing: 0 10px;
+}
+
+/* border 종류 */
+.border-1px-solid {
+	border: 1px solid black;
+}
+
+/* 높이 */
+.height-40{
+	height:40px;
+}
+
+.height-100{
+	height : 100px;
+}
+.height-200{
+	height : 200px;
+}
+.height-300{
+	height : 300px;
+}
+.height-400{
+	height : 400px;
+}
+
+.height-500{
+	height : 500px;
+}
+.height-550{
+	height : 550px;
+}
+
+.height-600{
+	height : 600px;
+}
+.height-700{
+	height : 700px;
+}
+.height-800{
+	height : 800px;
+}
+.height-900{
+	height : 900px;
+}
+.height-1000{
+	height : 1000px;
+}
+
+/* overflow-auto */
+.overflow-auto{
+	overflow:auto;
+}
+
+
+/* 숨기기 */
+
+.custom-acotianOn{
+	overflow:hidden;
+	max-height:800px;
+	transition:all 0.35s;
+}
+
+.custom-acotianOff{
+	overflow:hidden;
+	max-height :0px;
+	transition : all 0.35s;
+}
+
+.content-fade{
+	display:none;
+}
+.content-unfade{
+	display:black;
+}
+
+/* minicalendar */
+
+.fontToday{
+	color:red;
+}
+
+.fontAnotherMonth{
+	color:#bbbaba;
+}
+
+.cal-date{
+	text-align:center;	
+}
+.cal-day{
+	text-align:center;
+}
+.cal-sun{
+	color:red;	
+}
+.cal-sat{
+	color:blue;	
+}
+
+.circleDiv{
+	position:relative;
+	width:5px;
+	height:5px;
+	left:45%;
+	border-radius:50%;
+	background-color:black;
+}
+
+.nextBtn, .prevBtn{
+	position:relative;
+	top:30%;
+	font-size:3rem;
+}
+.prevBtn:hover{
+	animation : arrowPrev 1s infinite;
+}
+.nextBtn:hover{ 
+	animation : arrowNext 1s infinite;
+}
+.cal-today{
+	background-color:rgb(199 200 203);
+	border-radius:50%;
+}
+@keyframes arrowPrev{
+	from{
+		left:0;
+	}to{
+		left:-3%;
+	}
+} 
+@keyframes arrowNext{
+	from{
+		left:0;
+	}to{
+		left:3%;
+	}
+} 
+
+

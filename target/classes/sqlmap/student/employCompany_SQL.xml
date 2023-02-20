@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.hdcd.mapper.EmployCompanyMapper">
+	<select id="selectEmpList" parameterType="String" resultType="EmployCompanyVO">
+		select * 
+		  from employ_company
+		 where 1 = 1
+		 <include refid="getByCategory"/>
+	</select>
+	
+	
+	<sql id="getByCategory">
+		<if test="ecom_category != '' and ecom_category != null">
+			and ecom_category = #{ecom_category}
+		</if>
+	</sql>
+	
+	<select id="selectOneCompany" parameterType="String" resultType="EmployCompanyVO">
+		select * from employ_company where ecom_code = #{ecom_code}
+	</select>
+</mapper>
